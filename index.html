@@ -1,0 +1,873 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitud de Tarjeta Sterling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+  --ink:#17181a;
+  --ink-soft:#4a4d52;
+  --label:#8a8d92;
+  --paper:#faf9f7;
+  --card:#ffffff;
+  --rule:#e4e1dc;
+  --silver-1:#d8dadb;
+  --silver-2:#a9adaf;
+  --silver-3:#f2f3f3;
+  --sterling-red:#b0212f;
+  --focus:#17181a;
+  --serif:"Cormorant Garamond","Didot","Hoefler Text",Georgia,serif;
+  --sans:"Jost","Avenir Next","Helvetica Neue",Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:300;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- header ---------- */
+.masthead{
+  background:var(--ink);
+  color:#fff;
+  padding:34px 28px 30px;
+}
+.masthead-in{max-width:1100px;margin:0 auto;display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+.brand{flex:1 1 320px}
+.brand .wordmark{
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:500;
+  font-size:44px;
+  letter-spacing:.01em;
+  line-height:1;
+}
+.brand .rule{height:1px;background:rgba(255,255,255,.28);margin:16px 0 14px;max-width:260px}
+.brand h1{
+  font-family:var(--sans);
+  font-weight:400;
+  font-size:13px;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  margin:0 0 10px;
+}
+.brand p{margin:0;font-size:13.5px;line-height:1.65;color:rgba(255,255,255,.66);max-width:44ch}
+
+/* live card */
+.cardwrap{flex:0 0 320px}
+.silvercard{
+  position:relative;
+  aspect-ratio:1.585;
+  border-radius:12px;
+  padding:20px 22px;
+  color:#2a2c2e;
+  background:
+    linear-gradient(118deg,#fdfdfd 0%,var(--silver-1) 26%,var(--silver-3) 41%,var(--silver-2) 62%,#e9eaeb 78%,#bfc3c5 100%);
+  box-shadow:0 18px 34px -18px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.7);
+  display:flex;flex-direction:column;justify-content:space-between;
+  overflow:hidden;
+}
+.silvercard::after{
+  content:"";position:absolute;inset:-40% -10%;
+  background:linear-gradient(74deg,transparent 42%,rgba(255,255,255,.85) 50%,transparent 58%);
+  transform:translateX(-12%);
+  pointer-events:none;
+}
+.silvercard .logo{font-family:var(--serif);font-style:italic;font-size:27px;line-height:1;font-weight:500}
+.silvercard .tier{font-size:10px;letter-spacing:.44em;margin-top:2px;color:#6d7174}
+.silvercard .chip{
+  width:34px;height:25px;border-radius:4px;
+  background:linear-gradient(135deg,#cbb26a,#f0e2b4 45%,#b79c52);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);
+  margin-top:6px;
+}
+.silvercard .emboss{
+  font-family:var(--sans);font-weight:400;font-size:14px;letter-spacing:.13em;
+  text-transform:uppercase;min-height:19px;
+  text-shadow:0 1px 0 rgba(255,255,255,.85);
+}
+.silvercard .meta{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.22em;color:#63676a;text-transform:uppercase}
+.cardnote{margin-top:12px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.42)}
+
+/* ---------- benefits strip ---------- */
+.benefits{background:#fff;border-bottom:1px solid var(--rule)}
+.benefits-in{max-width:1100px;margin:0 auto;padding:18px 28px;display:flex;gap:34px;flex-wrap:wrap;align-items:baseline}
+.benefits .lead{font-family:var(--serif);font-size:23px;font-weight:500}
+.benefits .lead em{font-style:italic;color:var(--sterling-red);font-size:30px}
+.benefits ul{list-style:none;display:flex;gap:26px;flex-wrap:wrap;margin:0;padding:0}
+.benefits li{font-size:12.5px;color:var(--ink-soft);position:relative;padding-left:13px}
+.benefits li::before{content:"·";position:absolute;left:0;color:var(--sterling-red);font-weight:600}
+
+/* ---------- progress ---------- */
+.progressbar{position:sticky;top:0;z-index:40;background:rgba(250,249,247,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.progressbar-in{max-width:1100px;margin:0 auto;padding:11px 28px;display:flex;align-items:center;gap:16px}
+.progressbar .track{flex:1;height:2px;background:var(--rule);position:relative;overflow:hidden}
+.progressbar .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--ink);transition:width .3s ease}
+.progressbar .count{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--label);white-space:nowrap}
+
+/* ---------- form ---------- */
+main{max-width:1100px;margin:0 auto;padding:32px 28px 90px}
+.section{background:var(--card);border:1px solid var(--rule);margin-bottom:16px}
+.section > header{
+  padding:16px 24px;border-bottom:1px solid var(--rule);
+  display:flex;align-items:baseline;gap:14px;
+}
+.section > header h2{
+  margin:0;font-size:11.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+}
+.section > header .hint{font-size:12px;color:var(--label);font-weight:300}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:0}
+.field{
+  grid-column:span 4;
+  border-right:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  padding:12px 24px 11px;
+  position:relative;
+}
+.grid .field:last-child{border-bottom:none}
+.field > label,.field > .flabel{
+  display:block;font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:var(--label);
+  margin-bottom:5px;
+}
+.field.req > label::after,.field.req > .flabel::after{content:" *";color:var(--sterling-red)}
+.field input[type=text],.field input[type=tel],.field input[type=email],.field input[type=date],.field select{
+  width:100%;border:none;background:transparent;padding:2px 0 3px;
+  font-family:var(--sans);font-size:15px;font-weight:400;color:var(--ink);
+  border-bottom:1px solid transparent;
+}
+.field select{margin-left:-2px}
+.field input:focus,.field select:focus{outline:none;border-bottom-color:var(--ink)}
+.field input::placeholder{color:#c3c5c8;font-weight:300}
+.field.invalid{background:#fdf6f6}
+.field.invalid input,.field.invalid select{border-bottom-color:var(--sterling-red)}
+.field .err{display:none;font-size:11px;color:var(--sterling-red);margin-top:4px}
+.field.invalid .err{display:block}
+.money{display:flex;align-items:baseline;gap:5px}
+.money .cur{font-size:12px;color:var(--label)}
+
+/* segmented choice */
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.seg label{
+  font-size:12.5px;padding:6px 13px;border:1px solid var(--rule);cursor:pointer;
+  color:var(--ink-soft);user-select:none;transition:.15s;
+}
+.seg input{position:absolute;opacity:0;width:0;height:0}
+.seg label:hover{border-color:#b9b6b1}
+.seg input:checked + span,.seg label.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.seg input:focus-visible + span{outline:2px solid var(--focus);outline-offset:2px}
+
+/* consent */
+.consent{background:#fff;border:1px solid var(--ink);margin-top:26px}
+.consent header{padding:16px 24px;border-bottom:1px solid var(--rule)}
+.consent header h2{margin:0;font-size:11.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase}
+.consent .body{padding:20px 24px 6px}
+.legal{font-size:12.5px;line-height:1.75;color:var(--ink-soft);margin:0 0 18px;max-width:88ch}
+.check{display:flex;gap:13px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--rule)}
+.check input{
+  appearance:none;width:17px;height:17px;border:1px solid #9b9d9f;flex:0 0 17px;margin-top:2px;
+  cursor:pointer;background:#fff;
+}
+.check input:checked{background:var(--ink);border-color:var(--ink)}
+.check input:checked::after{content:"";display:block;width:5px;height:9px;border:solid #fff;border-width:0 1.6px 1.6px 0;transform:rotate(45deg);margin:2px 0 0 5px}
+.check input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.check .txt{font-size:13px;line-height:1.65;color:var(--ink)}
+.check .txt small{display:block;color:var(--label);font-size:11.5px;margin-top:3px;line-height:1.55}
+.check.missing{background:#fdf6f6;margin:0 -24px;padding:14px 24px}
+
+/* actions */
+.actions{
+  position:sticky;bottom:0;background:rgba(250,249,247,.94);backdrop-filter:blur(8px);
+  border-top:1px solid var(--rule);padding:16px 28px;margin-top:28px;z-index:30;
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+}
+.actions .spacer{flex:1}
+button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.btn-primary{background:var(--ink);color:#fff;border:1px solid var(--ink);padding:14px 30px}
+.btn-primary:hover{background:#000}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--rule);padding:14px 22px}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.status{font-size:12px;color:var(--label);letter-spacing:.04em;text-transform:none}
+.status.bad{color:var(--sterling-red)}
+
+/* footer brands */
+.groupbrands{border-top:1px solid var(--rule);margin-top:34px;padding-top:22px;display:flex;gap:38px;align-items:center;flex-wrap:wrap}
+.groupbrands span{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--label)}
+.groupbrands .bm{font-family:var(--serif);font-size:17px;letter-spacing:.18em;color:var(--ink-soft)}
+
+@media (max-width:820px){
+  .field{grid-column:span 12 !important;border-right:none}
+  .masthead-in{gap:26px}
+  .cardwrap{flex:1 1 260px;max-width:320px}
+  .brand .wordmark{font-size:36px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+
+/* ---------- offscreen PDF document ---------- */
+#pdfRoot{position:fixed;left:-12000px;top:0;width:794px}
+.page{
+  width:794px;min-height:1123px;background:#fff;color:#000;padding:46px 52px;
+  font-family:var(--sans);font-size:10.5px;position:relative;
+}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.4px solid #000;padding-bottom:10px;margin-bottom:20px}
+.pg-head .lm{font-family:var(--serif);font-style:italic;font-size:30px;line-height:1}
+.pg-head .lt{font-size:8px;letter-spacing:.4em;color:#666;margin-top:1px}
+.pg-head .rt{text-align:right;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#333;line-height:1.7}
+.pg-title{font-size:10px;letter-spacing:.3em;text-transform:uppercase;margin:0 0 16px}
+.blk{margin-bottom:15px}
+.blk h3{
+  font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;margin:0 0 7px;padding-bottom:4px;
+  border-bottom:.8px solid #000;font-weight:600;
+}
+.rows{display:flex;flex-wrap:wrap}
+.cell{padding:5px 10px 5px 0;box-sizing:border-box}
+.cell .k{font-size:7.2px;letter-spacing:.16em;text-transform:uppercase;color:#777}
+.cell .v{font-size:11px;border-bottom:.6px solid #bbb;min-height:15px;padding-top:2px;color:#000}
+.w33{width:33.33%}.w50{width:50%}.w66{width:66.66%}.w100{width:100%}.w25{width:25%}
+.legalbox{border:.8px solid #000;padding:13px 14px;font-size:9px;line-height:1.65;margin-bottom:14px;text-align:justify}
+.ck{display:flex;gap:8px;margin-bottom:10px;font-size:9px;line-height:1.6}
+.ck .box{width:11px;height:11px;border:.9px solid #000;flex:0 0 11px;text-align:center;font-size:9px;line-height:11px;font-weight:600}
+.sigs{display:flex;gap:40px;margin-top:34px}
+.sigline{flex:1}
+.sigline .ln{border-bottom:.9px solid #000;height:46px}
+.sigline .cap{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:#555;margin-top:5px}
+.sigline .sub{font-size:9px;color:#000;margin-top:8px}
+.company{border:.8px solid #000;margin-top:26px}
+.company .ch{background:#f1f0ee;padding:6px 10px;font-size:8px;letter-spacing:.24em;text-transform:uppercase;border-bottom:.8px solid #000}
+.company .cb{display:flex}
+.company .cb div{flex:1;padding:9px 10px;border-right:.6px solid #999;font-size:7.2px;letter-spacing:.16em;text-transform:uppercase;color:#777}
+.company .cb div:last-child{border-right:none}
+.company .cb div i{display:block;height:22px}
+.pg-foot{position:absolute;bottom:34px;left:52px;right:52px;border-top:.6px solid #999;padding-top:8px;display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;color:#888}
+.trace{font-size:8.5px;line-height:1.7;color:#333;border-top:.6px solid #999;margin-top:20px;padding-top:10px}
+</style>
+
+<div class="masthead">
+  <div class="masthead-in">
+    <div class="brand">
+      <div class="wordmark">Sterling</div>
+      <div class="rule"></div>
+      <h1>Solicitud de Tarjeta Sterling</h1>
+      <p>Diligencie los datos del cliente. Al finalizar se genera el PDF de la solicitud listo para firma digital.</p>
+    </div>
+    <div class="cardwrap">
+      <div class="silvercard">
+        <div>
+          <div class="logo">Sterling</div>
+          <div class="tier">SILVER</div>
+          <div class="chip"></div>
+        </div>
+        <div>
+          <div class="emboss" id="cardName">NOMBRE DEL CLIENTE</div>
+          <div class="meta"><span id="cardStore">Punto de venta</span><span>Solicitud</span></div>
+        </div>
+      </div>
+      <div class="cardnote">Vista previa · el nombre se toma del formulario</div>
+    </div>
+  </div>
+</div>
+
+<div class="benefits">
+  <div class="benefits-in">
+    <div class="lead"><em>10%</em> off por apertura de cuenta</div>
+    <ul>
+      <li>Sin cuota de manejo</li>
+      <li>Entrega inmediata de la mercancía</li>
+      <li>Extracto mensual de su cuenta</li>
+      <li>Mayores descuentos en promociones</li>
+    </ul>
+  </div>
+</div>
+
+<div class="progressbar">
+  <div class="progressbar-in">
+    <span class="count" id="progressLabel">0 de 0 campos obligatorios</span>
+    <div class="track"><div class="fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<main>
+  <form id="app" novalidate></form>
+
+  <div class="consent">
+    <header><h2>Declaración y autorizaciones</h2></header>
+    <div class="body">
+      <p class="legal" id="legalText"></p>
+
+      <div class="check" id="wrap_ackReglamento">
+        <input type="checkbox" id="ackReglamento" data-consent>
+        <span class="txt">
+          <label for="ackReglamento">El cliente declara haber leído y comprendido el reglamento de la Tarjeta Sterling y acepta sus términos y condiciones.</label>
+          <small>Obligatorio. El reglamento se entrega al cliente antes de firmar.</small>
+        </span>
+      </div>
+
+      <div class="check" id="wrap_ackCredito">
+        <input type="checkbox" id="ackCredito" data-consent>
+        <span class="txt">
+          <label for="ackCredito">El cliente autoriza a Sterling de Colombia S.A. a consultar, solicitar, reportar y actualizar su información financiera y crediticia ante centrales de información y operadores de riesgo.</label>
+          <small>Obligatorio. Incluye el tratamiento de sus datos personales conforme a la Ley 1581 de 2012 y la política de privacidad de Sterling de Colombia S.A.</small>
+        </span>
+      </div>
+
+      <div class="check">
+        <input type="checkbox" id="ackComercial">
+        <span class="txt">
+          <label for="ackComercial">El cliente autoriza el envío de información comercial y promocional de las marcas del grupo.</label>
+          <small>Opcional.</small>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="groupbrands">
+    <span>Válida también en</span>
+    <div class="bm">Carolina Herrera</div>
+    <div class="bm">Purificación García</div>
+    <div class="bm">Malva</div>
+  </div>
+</main>
+
+<div class="actions">
+  <button type="button" class="btn-primary" id="btnSend">Enviar al equipo de crédito</button>
+  <button type="button" class="btn-ghost" id="btnPdf">Solo descargar PDF</button>
+  <button type="button" class="btn-ghost" id="btnRetry" hidden>Reintentar envío</button>
+  <button type="button" class="btn-ghost" id="btnClear">Limpiar formulario</button>
+  <div class="spacer"></div>
+  <span class="status" id="status"></span>
+</div>
+
+<div id="pdfRoot" aria-hidden="true"></div>
+
+<script>
+/* ==================================================================
+   CONFIGURACIÓN — lo único que hay que editar
+   endpoint : URL del Web App de Google Apps Script (termina en /exec)
+   token    : la misma clave que puso en el script. Cámbiela.
+   copiaLocal: true = el asesor además descarga el PDF en su equipo
+================================================================== */
+const CONFIG = {
+  endpoint: 'https://solicitudes-sterling.summer-sun-3e62.workers.dev',
+  token: 'sterling-retiro-2026-QpT4vN8mKa',
+  copiaLocal: true
+};
+
+/* ------------------------------------------------------------------
+   Estructura del formulario — refleja la solicitud impresa
+------------------------------------------------------------------ */
+const LEGAL = "Los datos aquí consignados son verdaderos y se dan con el objeto de que Sterling de Colombia S.A. financie la compra de los productos que deseo adquirir, sujeta dicha financiación a las condiciones y términos que para dichos efectos ha establecido Sterling de Colombia S.A. en el reglamento vigente. En constancia de haber leído y comprendido el alcance de dicho reglamento y aceptando los términos y condiciones del mismo, firmo la presente solicitud.";
+
+const SECTIONS = [
+  { id:'venta', title:'Punto de venta', hint:'Uso del asesor', fields:[
+    { n:'tienda', l:'Almacén', t:'select', w:4, req:true, opts:['','El Retiro','Andino','Santafé','Unicentro Bogotá','Hacienda Santa Bárbara','Buenavista Barranquilla','Viva Barranquilla','El Tesoro Medellín','Santafé Medellín','Otro'] },
+    { n:'marca', l:'Marca', t:'select', w:4, req:true, opts:['','Sterling','Carolina Herrera','Purificación García','Malva','Tiffany'] },
+    { n:'asesor', l:'Asesor', w:4, req:true },
+    { n:'cupoSolicitado', l:'Cupo solicitado', t:'money', w:4 },
+    { n:'valorCompra', l:'Valor de la compra en curso', t:'money', w:4 },
+    { n:'fecha', l:'Fecha de solicitud', t:'date', w:4, req:true }
+  ]},
+  { id:'personales', title:'Datos personales', fields:[
+    { n:'nombres', l:'Nombres', w:4, req:true },
+    { n:'apellidos', l:'Apellidos', w:4, req:true },
+    { n:'cc', l:'C.C. No.', w:4, req:true, num:true },
+    { n:'nacimiento', l:'Fecha de nacimiento', t:'date', w:4, req:true },
+    { n:'celular', l:'Celular', t:'tel', w:4, req:true, num:true },
+    { n:'telefono', l:'Teléfono fijo', t:'tel', w:4, num:true },
+    { n:'email', l:'Email', t:'email', w:4, req:true },
+    { n:'dirResidencia', l:'Dirección de residencia', w:4, req:true },
+    { n:'ciudad', l:'Ciudad', w:4, req:true },
+    { n:'dirCorrespondencia', l:'Dirección de correspondencia', w:4 },
+    { n:'vivienda', l:'Vivienda', t:'seg', w:4, opts:['Casa','Apartamento'] },
+    { n:'tenencia', l:'Tenencia', t:'seg', w:4, opts:['Propia','Arrendada'] }
+  ]},
+  { id:'laboral', title:'Información laboral', fields:[
+    { n:'empresa', l:'Empresa donde trabaja', w:4, req:true },
+    { n:'telEmpresa', l:'Teléfono de la empresa', t:'tel', w:4, num:true },
+    { n:'dirEmpresa', l:'Dirección de la empresa', w:4 },
+    { n:'cargo', l:'Cargo', w:4 },
+    { n:'profesion', l:'Profesión', w:4 },
+    { n:'antiguedad', l:'Antigüedad', w:4 },
+    { n:'sueldo', l:'Sueldo mensual', t:'money', w:4, req:true },
+    { n:'otrosIngresos', l:'Otros ingresos', t:'money', w:4 }
+  ]},
+  { id:'refPersonales', title:'Referencias personales', fields:[
+    { n:'ref1Nombre', l:'Referencia 1 — nombre', w:4, req:true },
+    { n:'ref1Tel', l:'Referencia 1 — teléfono', t:'tel', w:4, req:true, num:true },
+    { n:'ref1Parentesco', l:'Referencia 1 — parentesco', w:4 },
+    { n:'ref2Nombre', l:'Referencia 2 — nombre', w:4 },
+    { n:'ref2Tel', l:'Referencia 2 — teléfono', t:'tel', w:4, num:true },
+    { n:'ref2Parentesco', l:'Referencia 2 — parentesco', w:4 }
+  ]},
+  { id:'refComerciales', title:'Referencias comerciales', fields:[
+    { n:'com1Nombre', l:'Establecimiento', w:4 },
+    { n:'com1Tel', l:'Teléfono', t:'tel', w:4, num:true },
+    { n:'com1Valor', l:'Valor / cupo', t:'money', w:4 }
+  ]},
+  { id:'bancarias', title:'Referencias bancarias y tarjetas', fields:[
+    { n:'banco', l:'Banco', w:4 },
+    { n:'cuenta', l:'Cuenta No.', w:4, num:true },
+    { n:'sucursal', l:'Sucursal', w:4 },
+    { n:'tcBanco', l:'Tarjeta de crédito — banco', w:4 },
+    { n:'tcNumero', l:'Tarjeta de crédito — últimos 4 dígitos', w:4, num:true, max:4 },
+    { n:'tcCupo', l:'Cupo aproximado', t:'money', w:4 }
+  ]},
+  { id:'vehiculo', title:'Automóvil propio', hint:'Si aplica', fields:[
+    { n:'autoMarca', l:'Marca', w:3 },
+    { n:'autoModelo', l:'Modelo', w:3 },
+    { n:'autoAnio', l:'Año', w:3, num:true, max:4 },
+    { n:'autoPlaca', l:'Placa', w:3 }
+  ]},
+  { id:'conyuge', title:'Datos del cónyuge', hint:'Si aplica', fields:[
+    { n:'conNombre', l:'Nombres', w:4 },
+    { n:'conApellido', l:'Apellidos', w:4 },
+    { n:'conCc', l:'C.C. No.', w:4, num:true },
+    { n:'conEmpresa', l:'Empresa', w:4 },
+    { n:'conTel', l:'Teléfono', t:'tel', w:4, num:true },
+    { n:'conSueldo', l:'Sueldo', t:'money', w:4 },
+    { n:'conOtros', l:'Otros ingresos', t:'money', w:4 }
+  ]},
+  { id:'conjunta', title:'Persona conjunta', hint:'Autorizada para comprar con el cupo', fields:[
+    { n:'cjNombre', l:'Nombres', w:4 },
+    { n:'cjApellido', l:'Apellidos', w:4 },
+    { n:'cjCc', l:'C.C. No.', w:4, num:true },
+    { n:'cjParentesco', l:'Parentesco', w:4 },
+    { n:'cjTel', l:'Teléfono', t:'tel', w:4, num:true }
+  ]}
+];
+
+/* ------------------------------------------------------------------
+   Construcción del formulario
+------------------------------------------------------------------ */
+const form = document.getElementById('app');
+document.getElementById('legalText').textContent = LEGAL;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const spanClass = w => 'grid-column:span ' + (w * 3) + ';';
+
+SECTIONS.forEach(sec => {
+  const wrap = document.createElement('section');
+  wrap.className = 'section';
+  let html = '<header><h2>' + esc(sec.title) + '</h2>' + (sec.hint ? '<span class="hint">' + esc(sec.hint) + '</span>' : '') + '</header><div class="grid">';
+
+  sec.fields.forEach(f => {
+    const id = 'f_' + f.n;
+    html += '<div class="field' + (f.req ? ' req' : '') + '" id="w_' + f.n + '" style="' + spanClass(f.w || 4) + '">';
+    if (f.t === 'seg') {
+      html += '<span class="flabel">' + esc(f.l) + '</span><div class="seg">';
+      f.opts.forEach((o, i) => {
+        html += '<label><input type="radio" name="' + f.n + '" value="' + esc(o) + '" id="' + id + '_' + i + '"><span>' + esc(o) + '</span></label>';
+      });
+      html += '</div>';
+    } else if (f.t === 'select') {
+      html += '<label for="' + id + '">' + esc(f.l) + '</label><select id="' + id + '" name="' + f.n + '">';
+      f.opts.forEach(o => { html += '<option value="' + esc(o) + '">' + (o ? esc(o) : 'Seleccione…') + '</option>'; });
+      html += '</select>';
+    } else if (f.t === 'money') {
+      html += '<label for="' + id + '">' + esc(f.l) + '</label><div class="money"><span class="cur">COP</span>'
+           + '<input type="text" inputmode="numeric" id="' + id + '" name="' + f.n + '" data-money placeholder="0"></div>';
+    } else {
+      const type = f.t || 'text';
+      html += '<label for="' + id + '">' + esc(f.l) + '</label><input type="' + type + '" id="' + id + '" name="' + f.n + '"'
+           + (f.num ? ' inputmode="numeric" data-num' : '')
+           + (f.max ? ' maxlength="' + f.max + '"' : '') + '>';
+    }
+    html += '<span class="err">Campo obligatorio</span></div>';
+  });
+
+  html += '</div>';
+  wrap.innerHTML = html;
+  form.appendChild(wrap);
+});
+
+/* fecha de hoy por defecto */
+const today = new Date();
+const iso = today.toISOString().slice(0, 10);
+const fFecha = form.querySelector('[name=fecha]');
+if (fFecha) fFecha.value = iso;
+
+/* ------------------------------------------------------------------
+   Comportamiento de campos
+------------------------------------------------------------------ */
+const nf = new Intl.NumberFormat('es-CO');
+const digits = s => (s || '').replace(/\D/g, '');
+
+form.addEventListener('input', e => {
+  const el = e.target;
+  if (el.hasAttribute('data-money')) {
+    const d = digits(el.value);
+    el.value = d ? nf.format(Number(d)) : '';
+  } else if (el.hasAttribute('data-num')) {
+    el.value = digits(el.value);
+  }
+  paint(el);
+  updateCard();
+  updateProgress();
+});
+form.addEventListener('change', () => { updateCard(); updateProgress(); });
+
+function paint(el) {
+  const w = el.closest('.field');
+  if (w && w.classList.contains('invalid') && String(el.value).trim()) w.classList.remove('invalid');
+}
+
+function updateCard() {
+  const n = (val('nombres') + ' ' + val('apellidos')).trim();
+  document.getElementById('cardName').textContent = n ? n.toUpperCase() : 'NOMBRE DEL CLIENTE';
+  const t = val('tienda'), m = val('marca');
+  document.getElementById('cardStore').textContent = (m || t) ? [m, t].filter(Boolean).join(' · ') : 'Punto de venta';
+}
+
+const val = n => {
+  const el = form.querySelector('[name="' + n + '"]');
+  if (!el) return '';
+  if (el.type === 'radio') {
+    const c = form.querySelector('[name="' + n + '"]:checked');
+    return c ? c.value : '';
+  }
+  return (el.value || '').trim();
+};
+
+const REQUIRED = SECTIONS.flatMap(s => s.fields.filter(f => f.req).map(f => f.n));
+
+function updateProgress() {
+  const done = REQUIRED.filter(n => val(n)).length;
+  const consents = ['ackReglamento', 'ackCredito'].filter(id => document.getElementById(id).checked).length;
+  const total = REQUIRED.length + 2;
+  const pct = Math.round(((done + consents) / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = (done + consents) + ' de ' + total + ' requisitos completos';
+}
+document.querySelectorAll('[data-consent]').forEach(c => c.addEventListener('change', () => {
+  const w = c.closest('.check'); if (c.checked) w.classList.remove('missing');
+  updateProgress();
+}));
+
+/* ------------------------------------------------------------------
+   Validación
+------------------------------------------------------------------ */
+function validate() {
+  let firstBad = null;
+  document.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
+
+  REQUIRED.forEach(n => {
+    if (!val(n)) {
+      const w = document.getElementById('w_' + n);
+      w.classList.add('invalid');
+      if (!firstBad) firstBad = w;
+    }
+  });
+
+  const email = val('email');
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    const w = document.getElementById('w_email');
+    w.classList.add('invalid');
+    w.querySelector('.err').textContent = 'Correo no válido';
+    if (!firstBad) firstBad = w;
+  }
+
+  let consentMissing = false;
+  ['ackReglamento', 'ackCredito'].forEach(id => {
+    const c = document.getElementById(id);
+    const w = document.getElementById('wrap_' + id);
+    if (!c.checked) { w.classList.add('missing'); consentMissing = true; if (!firstBad) firstBad = w; }
+  });
+
+  if (firstBad) {
+    firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setStatus(consentMissing && !document.querySelector('.field.invalid')
+      ? 'Falta marcar las autorizaciones obligatorias.'
+      : 'Revise los campos marcados en rojo.', true);
+    return false;
+  }
+  return true;
+}
+
+function setStatus(msg, bad) {
+  const s = document.getElementById('status');
+  s.textContent = msg || '';
+  s.className = 'status' + (bad ? ' bad' : '');
+}
+
+/* ------------------------------------------------------------------
+   Documento PDF
+------------------------------------------------------------------ */
+const money = n => { const d = digits(n); return d ? '$ ' + nf.format(Number(d)) : '—'; };
+const dash = v => v || '—';
+const fdate = v => {
+  if (!v) return '—';
+  const [y, m, d] = v.split('-');
+  return d + '/' + m + '/' + y;
+};
+
+function cell(k, v, w) {
+  return '<div class="cell ' + (w || 'w33') + '"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>';
+}
+
+function buildDoc() {
+  const nombre = (val('nombres') + ' ' + val('apellidos')).toUpperCase();
+  const stamp = new Date().toLocaleString('es-CO', { dateStyle: 'long', timeStyle: 'short' });
+  const folio = 'ST-' + iso.replace(/-/g, '') + '-' + digits(val('cc')).slice(-5);
+
+  const head = '<div class="pg-head"><div><div class="lm">Sterling</div><div class="lt">SILVER</div></div>'
+    + '<div class="rt">Solicitud de Tarjeta Sterling<br>Folio ' + esc(folio) + ' · ' + esc(fdate(val('fecha'))) + '</div></div>';
+
+  const foot = p => '<div class="pg-foot"><span>Sterling de Colombia S.A. · NIT 000.000.000-0</span>'
+    + '<span>' + esc(nombre) + ' · C.C. ' + esc(dash(val('cc'))) + '</span><span>Página ' + p + ' de 2</span></div>';
+
+  const p1 = '<div class="page">' + head
+    + '<p class="pg-title">Datos del solicitante</p>'
+
+    + '<div class="blk"><h3>Punto de venta</h3><div class="rows">'
+    + cell('Almacén', dash(val('tienda'))) + cell('Marca', dash(val('marca'))) + cell('Asesor', dash(val('asesor')))
+    + cell('Cupo solicitado', money(val('cupoSolicitado'))) + cell('Compra en curso', money(val('valorCompra'))) + cell('Fecha', fdate(val('fecha')))
+    + '</div></div>'
+
+    + '<div class="blk"><h3>Datos personales</h3><div class="rows">'
+    + cell('Nombres', dash(val('nombres')), 'w33') + cell('Apellidos', dash(val('apellidos')), 'w33') + cell('C.C. No.', dash(val('cc')), 'w33')
+    + cell('Fecha de nacimiento', fdate(val('nacimiento'))) + cell('Celular', dash(val('celular'))) + cell('Teléfono fijo', dash(val('telefono')))
+    + cell('Email', dash(val('email')), 'w66') + cell('Ciudad', dash(val('ciudad')))
+    + cell('Dirección de residencia', dash(val('dirResidencia')), 'w50') + cell('Dirección de correspondencia', dash(val('dirCorrespondencia')), 'w50')
+    + cell('Vivienda', dash(val('vivienda')), 'w50') + cell('Tenencia', dash(val('tenencia')), 'w50')
+    + '</div></div>'
+
+    + '<div class="blk"><h3>Información laboral</h3><div class="rows">'
+    + cell('Empresa', dash(val('empresa')), 'w50') + cell('Teléfono', dash(val('telEmpresa'))) + cell('Antigüedad', dash(val('antiguedad')))
+    + cell('Dirección de la empresa', dash(val('dirEmpresa')), 'w50') + cell('Cargo', dash(val('cargo'))) + cell('Profesión', dash(val('profesion')))
+    + cell('Sueldo mensual', money(val('sueldo')), 'w50') + cell('Otros ingresos', money(val('otrosIngresos')), 'w50')
+    + '</div></div>'
+
+    + '<div class="blk"><h3>Referencias personales</h3><div class="rows">'
+    + cell('Nombre 1', dash(val('ref1Nombre'))) + cell('Teléfono', dash(val('ref1Tel'))) + cell('Parentesco', dash(val('ref1Parentesco')))
+    + cell('Nombre 2', dash(val('ref2Nombre'))) + cell('Teléfono', dash(val('ref2Tel'))) + cell('Parentesco', dash(val('ref2Parentesco')))
+    + '</div></div>'
+
+    + '<div class="blk"><h3>Referencias comerciales, bancarias y tarjetas</h3><div class="rows">'
+    + cell('Establecimiento', dash(val('com1Nombre'))) + cell('Teléfono', dash(val('com1Tel'))) + cell('Valor / cupo', money(val('com1Valor')))
+    + cell('Banco', dash(val('banco'))) + cell('Cuenta No.', dash(val('cuenta'))) + cell('Sucursal', dash(val('sucursal')))
+    + cell('Tarjeta de crédito — banco', dash(val('tcBanco'))) + cell('Últimos 4 dígitos', dash(val('tcNumero'))) + cell('Cupo aproximado', money(val('tcCupo')))
+    + '</div></div>'
+
+    + '<div class="blk"><h3>Automóvil propio</h3><div class="rows">'
+    + cell('Marca', dash(val('autoMarca')), 'w25') + cell('Modelo', dash(val('autoModelo')), 'w25')
+    + cell('Año', dash(val('autoAnio')), 'w25') + cell('Placa', dash(val('autoPlaca')), 'w25')
+    + '</div></div>'
+    + foot(1) + '</div>';
+
+  const p2 = '<div class="page">' + head
+    + '<p class="pg-title">Cónyuge, persona conjunta y autorizaciones</p>'
+
+    + '<div class="blk"><h3>Datos del cónyuge</h3><div class="rows">'
+    + cell('Nombres', dash(val('conNombre'))) + cell('Apellidos', dash(val('conApellido'))) + cell('C.C. No.', dash(val('conCc')))
+    + cell('Empresa', dash(val('conEmpresa'))) + cell('Teléfono', dash(val('conTel'))) + cell('Sueldo', money(val('conSueldo')))
+    + cell('Otros ingresos', money(val('conOtros')))
+    + '</div></div>'
+
+    + '<div class="blk"><h3>Persona conjunta autorizada</h3><div class="rows">'
+    + cell('Nombres', dash(val('cjNombre'))) + cell('Apellidos', dash(val('cjApellido'))) + cell('C.C. No.', dash(val('cjCc')))
+    + cell('Parentesco', dash(val('cjParentesco'))) + cell('Teléfono', dash(val('cjTel')))
+    + '</div></div>'
+
+    + '<div class="blk"><h3>Declaración</h3><div class="legalbox">' + esc(LEGAL) + '</div>'
+    + ck(document.getElementById('ackReglamento').checked, 'Declaro haber leído y comprendido el reglamento de la Tarjeta Sterling y acepto sus términos y condiciones.')
+    + ck(document.getElementById('ackCredito').checked, 'Autorizo de manera previa, expresa e informada a Sterling de Colombia S.A., o a quien represente sus derechos, a consultar, solicitar, suministrar, reportar, procesar y divulgar mi información financiera, comercial y crediticia ante centrales de información y operadores de riesgo, así como a tratar mis datos personales conforme a la Ley 1581 de 2012 y a la política de tratamiento de datos de la compañía.')
+    + ck(document.getElementById('ackComercial').checked, 'Autorizo el envío de información comercial y promocional de las marcas del grupo. (Opcional)')
+    + '</div>'
+
+    + '<div class="sigs">'
+    + '<div class="sigline"><div class="ln"></div><div class="cap">Firma del solicitante</div>'
+    + '<div class="sub">' + esc(nombre || '—') + '<br>C.C. ' + esc(dash(val('cc'))) + '</div></div>'
+    + '<div class="sigline"><div class="ln"></div><div class="cap">Firma persona conjunta</div>'
+    + '<div class="sub">' + esc(((val('cjNombre') + ' ' + val('cjApellido')).trim() || '—').toUpperCase()) + '<br>C.C. ' + esc(dash(val('cjCc'))) + '</div></div>'
+    + '</div>'
+
+    + '<div class="company"><div class="ch">Uso de la compañía</div><div class="cb">'
+    + '<div>Cupo aprobado<i></i></div><div>Vendedor<i></i></div><div>Aprobó<i></i></div><div>Confirmó<i></i></div>'
+    + '</div></div>'
+
+    + '<div class="trace"><strong>Registro de diligenciamiento</strong><br>'
+    + 'Formulario diligenciado por ' + esc(dash(val('asesor'))) + ' en ' + esc(dash(val('tienda')))
+    + ' · Generado el ' + esc(stamp) + ' · Folio ' + esc(folio)
+    + '<br>Documento generado electrónicamente para firma digital. Las autorizaciones marcadas fueron confirmadas por el solicitante antes de la generación de este documento.</div>'
+    + foot(2) + '</div>';
+
+  return p1 + p2;
+}
+
+function ck(on, text) {
+  return '<div class="ck"><span class="box">' + (on ? '✕' : '') + '</span><span>' + esc(text) + '</span></div>';
+}
+
+/* ------------------------------------------------------------------
+   Generación del archivo
+------------------------------------------------------------------ */
+const folioActual = () => 'ST-' + iso.replace(/-/g, '') + '-' + (digits(val('cc')).slice(-5) || '00000');
+const fileName = () => 'Solicitud_Tarjeta_Sterling_'
+  + (val('apellidos') || 'Cliente').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z]/g, '')
+  + '_' + (digits(val('cc')) || 'SC') + '.pdf';
+
+async function buildPdf() {
+  if (typeof html2canvas === 'undefined' || !window.jspdf) {
+    throw new Error('libs');
+  }
+  const root = document.getElementById('pdfRoot');
+  root.innerHTML = buildDoc();
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
+    const W = pdf.internal.pageSize.getWidth();
+    const H = pdf.internal.pageSize.getHeight();
+    const pages = root.querySelectorAll('.page');
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: '#ffffff', logging: false });
+      const img = canvas.toDataURL('image/jpeg', 0.9);
+      const h = Math.min(H, (canvas.height / canvas.width) * W);
+      if (i > 0) pdf.addPage();
+      pdf.addImage(img, 'JPEG', 0, 0, W, h);
+    }
+    return pdf;
+  } finally {
+    root.innerHTML = '';
+  }
+}
+
+/* Todos los campos como objeto plano, para la hoja de cálculo y el correo */
+function collect() {
+  const out = {};
+  SECTIONS.forEach(s => s.fields.forEach(f => { out[f.n] = val(f.n); }));
+  out.ackReglamento = document.getElementById('ackReglamento').checked ? 'Sí' : 'No';
+  out.ackCredito = document.getElementById('ackCredito').checked ? 'Sí' : 'No';
+  out.ackComercial = document.getElementById('ackComercial').checked ? 'Sí' : 'No';
+  out.folio = folioActual();
+  out.generado = new Date().toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' });
+  return out;
+}
+
+let pendiente = null;
+const btnSend = document.getElementById('btnSend');
+const btnPdf = document.getElementById('btnPdf');
+const btnRetry = document.getElementById('btnRetry');
+
+function lock(on) {
+  btnSend.disabled = on; btnPdf.disabled = on; btnRetry.disabled = on;
+}
+
+async function post(payload) {
+  const r = await fetch(CONFIG.endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  const txt = await r.text();
+  let j;
+  try { j = JSON.parse(txt); } catch (e) { throw new Error('Respuesta inesperada del servidor'); }
+  if (!j.ok) throw new Error(j.error || 'El servidor rechazó la solicitud');
+  return j;
+}
+
+/* Enviar al equipo de crédito */
+btnSend.addEventListener('click', async () => {
+  if (!validate()) return;
+  lock(true);
+  btnRetry.hidden = true;
+  setStatus('Generando documento…');
+
+  let pdf;
+  try {
+    pdf = await buildPdf();
+  } catch (err) {
+    console.error(err);
+    setStatus('No se pudo generar el PDF. Use Imprimir → Guardar como PDF.', true);
+    lock(false);
+    return;
+  }
+
+  const name = fileName();
+  if (CONFIG.copiaLocal) pdf.save(name);
+
+  if (!CONFIG.endpoint) {
+    setStatus('PDF descargado. Falta configurar el envío automático (CONFIG.endpoint).', true);
+    lock(false);
+    return;
+  }
+
+  const payload = {
+    token: CONFIG.token,
+    filename: name,
+    folio: folioActual(),
+    datos: collect(),
+    pdfBase64: pdf.output('datauristring').split(',')[1]
+  };
+
+  setStatus('Enviando al equipo de crédito…');
+  try {
+    const j = await post(payload);
+    pendiente = null;
+    setStatus('Enviado al equipo de crédito · Folio ' + (j.folio || payload.folio));
+  } catch (err) {
+    console.error(err);
+    pendiente = payload;
+    btnRetry.hidden = false;
+    setStatus('No se pudo enviar (revise la conexión). El PDF quedó descargado — reintente.', true);
+  } finally {
+    lock(false);
+  }
+});
+
+/* Reintento sin regenerar el PDF */
+btnRetry.addEventListener('click', async () => {
+  if (!pendiente) { btnRetry.hidden = true; return; }
+  lock(true);
+  setStatus('Reintentando envío…');
+  try {
+    const j = await post(pendiente);
+    pendiente = null;
+    btnRetry.hidden = true;
+    setStatus('Enviado al equipo de crédito · Folio ' + (j.folio || ''));
+  } catch (err) {
+    setStatus('Sigue sin conexión con el servidor. Reintente en un momento.', true);
+  } finally {
+    lock(false);
+  }
+});
+
+/* Solo descargar, sin enviar */
+btnPdf.addEventListener('click', async () => {
+  if (!validate()) return;
+  lock(true);
+  setStatus('Generando documento…');
+  try {
+    const pdf = await buildPdf();
+    const name = fileName();
+    pdf.save(name);
+    setStatus('Descargado: ' + name);
+  } catch (err) {
+    console.error(err);
+    setStatus('Error al generar el PDF. Use Imprimir → Guardar como PDF.', true);
+  } finally {
+    lock(false);
+  }
+});
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  if (!confirm('¿Limpiar todos los datos del formulario?')) return;
+  form.reset();
+  document.querySelectorAll('[type=checkbox]').forEach(c => c.checked = false);
+  document.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
+  document.querySelectorAll('.check.missing').forEach(f => f.classList.remove('missing'));
+  if (fFecha) fFecha.value = iso;
+  pendiente = null;
+  btnRetry.hidden = true;
+  updateCard(); updateProgress(); setStatus('');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+updateCard();
+updateProgress();
+</script>
