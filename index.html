@@ -478,7 +478,7 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
    token    : la misma clave que puso en el script. Cámbiela.
 ================================================================== */
 const CONFIG = {
-  endpoint: 'https://solicitudes-sterling.summer-sun-3e62.workers.dev',
+  endpoint: 'https://solicitudes-sterling.shy-lab-614c.workers.dev',
   token: 'sterling-retiro-2026-QpT4vN8mKa'
 };
 
@@ -1078,15 +1078,23 @@ function lock(on) {
 }
 
 async function post(payload) {
-  const r = await fetch(CONFIG.endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  });
+  let r;
+  try {
+    r = await fetch(CONFIG.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    const err = new Error('Sin conexión con el servidor. Revise su red e intente de nuevo.');
+    err.red = true;
+    throw err;
+  }
   const txt = await r.text();
   let j;
-  try { j = JSON.parse(txt); } catch (e) { throw new Error('Respuesta inesperada del servidor'); }
-  if (!j.ok) throw new Error(j.error || 'El servidor rechazó la solicitud');
+  try { j = JSON.parse(txt); }
+  catch (e) { throw new Error('Respuesta inesperada del servidor (HTTP ' + r.status + ')'); }
+  if (!j.ok) throw new Error(j.error || ('El servidor rechazó la solicitud (HTTP ' + r.status + ')'));
   return j;
 }
 
@@ -1132,7 +1140,7 @@ btnSend.addEventListener('click', async () => {
     console.error(err);
     pendiente = payload;
     btnRetry.hidden = false;
-    setStatus('No pudimos enviar la solicitud. Revise su conexión e intente de nuevo.', true);
+    setStatus('No se pudo enviar · ' + (err && err.message ? err.message : 'error desconocido'), true);
   } finally {
     lock(false);
   }
@@ -1165,7 +1173,8 @@ btnRetry.addEventListener('click', async () => {
     btnRetry.hidden = true;
     confirmar(f);
   } catch (err) {
-    setStatus('Sigue sin conexión. Intente de nuevo en un momento.', true);
+    console.error(err);
+    setStatus('No se pudo enviar · ' + (err && err.message ? err.message : 'error desconocido'), true);
   } finally {
     lock(false);
   }
