@@ -61,39 +61,69 @@ body{
 .brand p{margin:0;font-size:13.5px;line-height:1.65;color:rgba(255,255,255,.66);max-width:44ch}
 
 /* live card */
-.cardwrap{flex:0 0 320px}
+.cardwrap{flex:0 0 330px}
 .silvercard{
   position:relative;
   aspect-ratio:1.585;
-  border-radius:12px;
-  padding:20px 22px;
-  color:#2a2c2e;
+  border-radius:11px;
+  padding:19px 22px 16px;
+  color:#3a3d40;
   background:
-    linear-gradient(118deg,#fdfdfd 0%,var(--silver-1) 26%,var(--silver-3) 41%,var(--silver-2) 62%,#e9eaeb 78%,#bfc3c5 100%);
-  box-shadow:0 18px 34px -18px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.7);
+    linear-gradient(146deg,
+      #f4f5f5 0%, #d9dcdd 14%, #fbfbfb 27%, #b9bec1 42%,
+      #eceded 55%, #c6cacc 70%, #f2f3f3 83%, #adb2b5 100%);
+  box-shadow:0 18px 34px -18px rgba(0,0,0,.78), inset 0 1px 0 rgba(255,255,255,.85);
   display:flex;flex-direction:column;justify-content:space-between;
   overflow:hidden;
 }
-.silvercard::after{
-  content:"";position:absolute;inset:-40% -10%;
-  background:linear-gradient(74deg,transparent 42%,rgba(255,255,255,.85) 50%,transparent 58%);
-  transform:translateX(-12%);
-  pointer-events:none;
+/* onda plateada del arte original */
+.silvercard .swoosh{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:11px;
 }
-.silvercard .logo{font-family:var(--serif);font-style:italic;font-size:27px;line-height:1;font-weight:500}
-.silvercard .tier{font-size:10px;letter-spacing:.44em;margin-top:2px;color:#6d7174}
-.silvercard .chip{
-  width:34px;height:25px;border-radius:4px;
-  background:linear-gradient(135deg,#cbb26a,#f0e2b4 45%,#b79c52);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);
-  margin-top:6px;
+.silvercard .swoosh::before{
+  content:"";position:absolute;left:-18%;top:-52%;width:150%;height:135%;
+  border-radius:50% 50% 46% 54% / 62% 58% 42% 38%;
+  background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(255,255,255,.05) 62%);
+  transform:rotate(-13deg);
 }
+.silvercard .swoosh::after{
+  content:"";position:absolute;right:-26%;bottom:-46%;width:118%;height:96%;
+  border-radius:52% 48% 40% 60% / 48% 56% 44% 52%;
+  background:linear-gradient(28deg,rgba(255,255,255,.62),rgba(160,166,170,.18) 70%);
+  transform:rotate(9deg);
+}
+.silvercard > *{position:relative;z-index:1}
+.silvercard .logo{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:34px;line-height:.94;letter-spacing:.005em;
+  color:#2f3235;
+  text-shadow:0 1px 0 rgba(255,255,255,.95), 0 -1px 0 rgba(0,0,0,.10);
+}
+.silvercard .tier{
+  font-family:var(--sans);font-weight:500;
+  font-size:15px;letter-spacing:.30em;
+  margin:-2px 0 0 44px;
+  color:#8b9094;
+  text-shadow:0 1px 0 rgba(255,255,255,.9);
+}
+.silvercard .plate{margin-top:auto}
 .silvercard .emboss{
-  font-family:var(--sans);font-weight:400;font-size:14px;letter-spacing:.13em;
-  text-transform:uppercase;min-height:19px;
-  text-shadow:0 1px 0 rgba(255,255,255,.85);
+  font-family:var(--sans);font-weight:400;font-size:13px;letter-spacing:.16em;
+  text-transform:uppercase;min-height:18px;color:#4a4d50;
+  text-shadow:0 1px 0 rgba(255,255,255,.95), 0 -1px 0 rgba(0,0,0,.14);
 }
-.silvercard .meta{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.22em;color:#63676a;text-transform:uppercase}
+.silvercard .digits{
+  font-family:var(--sans);font-weight:400;font-size:15px;letter-spacing:.10em;
+  color:#4a4d50;margin-top:5px;
+  text-shadow:0 1px 0 rgba(255,255,255,.95), 0 -1px 0 rgba(0,0,0,.14);
+}
+.silvercard .exp{
+  font-size:8px;letter-spacing:.20em;color:#7c8083;margin-top:5px;text-transform:uppercase;
+}
+.silvercard .meta{
+  display:flex;justify-content:space-between;font-size:8.5px;letter-spacing:.20em;
+  color:#7c8083;text-transform:uppercase;margin-top:7px;
+}
 .cardnote{margin-top:12px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.42)}
 
 /* ---------- benefits strip ---------- */
@@ -101,6 +131,11 @@ body{
 .benefits-in{max-width:1100px;margin:0 auto;padding:18px 28px;display:flex;gap:34px;flex-wrap:wrap;align-items:baseline}
 .benefits .lead{font-family:var(--serif);font-size:23px;font-weight:500}
 .benefits .lead em{font-style:italic;color:var(--sterling-red);font-size:30px}
+.benefits .lead .only{
+  display:inline-block;font-family:var(--sans);font-size:11px;font-weight:400;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--sterling-red);
+  margin-left:6px;vertical-align:middle;
+}
 .benefits ul{list-style:none;display:flex;gap:26px;flex-wrap:wrap;margin:0;padding:0}
 .benefits li{font-size:12.5px;color:var(--ink-soft);position:relative;padding-left:13px}
 .benefits li::before{content:"·";position:absolute;left:0;color:var(--sterling-red);font-weight:600}
@@ -163,8 +198,74 @@ main{max-width:1100px;margin:0 auto;padding:32px 28px 90px}
 .seg input:checked + span,.seg label.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .seg input:focus-visible + span{outline:2px solid var(--focus);outline-offset:2px}
 
+.mirrorrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:5px}
+.mirrorrow > label:first-child{
+  font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:var(--label);margin:0;
+}
+.field.req .mirrorrow > label:first-child::after{content:" *";color:var(--sterling-red)}
+.mirror{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--ink-soft);white-space:nowrap}
+.mirror input{
+  appearance:none;width:13px;height:13px;border:1px solid #9b9d9f;background:#fff;cursor:pointer;flex:0 0 13px;
+}
+.mirror input:checked{background:var(--ink);border-color:var(--ink)}
+.mirror input:checked::after{content:"";display:block;width:3.5px;height:7px;border:solid #fff;border-width:0 1.4px 1.4px 0;transform:rotate(45deg);margin:1px 0 0 4px}
+.mirror input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.field.locked{background:#faf9f7}
+.field.locked input{color:var(--ink-soft)}
+
+.field .fhint{display:block;font-size:11px;color:var(--label);margin-top:4px;line-height:1.45}
+
+/* banner de origen (tienda y asesor desde el enlace) */
+.origen{
+  background:#fff;border:1px solid var(--rule);border-left:2px solid var(--ink);
+  padding:13px 20px;margin-bottom:16px;display:flex;gap:20px;flex-wrap:wrap;align-items:baseline;
+}
+.origen .k{font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:var(--label)}
+.origen .v{font-size:13.5px;color:var(--ink);margin-left:8px}
+
+/* pantalla de confirmación */
+.done{background:#fff;border:1px solid var(--ink);padding:34px 28px;text-align:center;margin-top:16px}
+.done h2{font-family:var(--serif);font-size:30px;font-weight:500;margin:0 0 10px;color:var(--ink)}
+.done p{font-size:14px;line-height:1.7;color:var(--ink-soft);margin:0 auto 8px;max-width:46ch}
+.done .folio{
+  display:inline-block;margin:16px 0 6px;padding:11px 22px;border:1px solid var(--rule);
+  font-size:17px;letter-spacing:.14em;color:var(--ink);
+}
+.done .flabel2{font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:var(--label)}
+
+/* reglamento */
+.reg{background:#fff;border:1px solid var(--rule);margin-top:26px}
+.reg > header{
+  padding:16px 24px;border-bottom:1px solid var(--rule);
+  display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+}
+.reg > header h2{margin:0;font-size:11.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase}
+.reg > header .hint{font-size:12px;color:var(--label);font-weight:300}
+.regbox{
+  max-height:340px;overflow-y:auto;padding:20px 24px;
+  font-size:12.5px;line-height:1.72;color:var(--ink-soft);text-align:justify;
+  scroll-behavior:smooth;
+}
+.regbox h3{
+  font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink);margin:0 0 14px;line-height:1.6;
+}
+.regbox p{margin:0 0 11px}
+.regbox ul{margin:0 0 11px;padding-left:18px}
+.regbox li{margin-bottom:7px}
+.regfoot{
+  border-top:1px solid var(--rule);padding:11px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-size:11.5px;color:var(--label);
+}
+.regfoot .read{color:var(--ink)}
+.reglink{
+  background:none;border:none;padding:0;font-size:11.5px;letter-spacing:.04em;
+  text-transform:none;color:var(--ink);text-decoration:underline;cursor:pointer;
+}
+
 /* consent */
-.consent{background:#fff;border:1px solid var(--ink);margin-top:26px}
+.consent{background:#fff;border:1px solid var(--ink);margin-top:16px}
 .consent header{padding:16px 24px;border-bottom:1px solid var(--rule)}
 .consent header h2{margin:0;font-size:11.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase}
 .consent .body{padding:20px 24px 6px}
@@ -198,7 +299,7 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
 .status.bad{color:var(--sterling-red)}
 
 /* footer brands */
-.groupbrands{border-top:1px solid var(--rule);margin-top:34px;padding-top:22px;display:flex;gap:38px;align-items:center;flex-wrap:wrap}
+.groupbrands{border-top:1px solid var(--rule);margin-top:34px;padding-top:22px;display:flex;gap:30px;align-items:center;flex-wrap:wrap}
 .groupbrands span{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--label)}
 .groupbrands .bm{font-family:var(--serif);font-size:17px;letter-spacing:.18em;color:var(--ink-soft)}
 
@@ -247,6 +348,16 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
 .company .cb div i{display:block;height:22px}
 .pg-foot{position:absolute;bottom:34px;left:52px;right:52px;border-top:.6px solid #999;padding-top:8px;display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;color:#888}
 .trace{font-size:8.5px;line-height:1.7;color:#333;border-top:.6px solid #999;margin-top:20px;padding-top:10px}
+.regtitle{font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;text-align:center;margin:0 0 12px;line-height:1.5}
+.regcols{display:flex;gap:20px;align-items:flex-start}
+.regcol{flex:1;font-size:6.4px;line-height:1.5;text-align:justify;color:#111}
+.regcol p{margin:0 0 5px}
+.regcol ul{margin:0 0 5px;padding-left:9px}
+.regcol li{margin-bottom:3.5px}
+.regsign{border-top:.8px solid #000;margin-top:14px;padding-top:10px}
+.regsign p{font-size:8px;margin:0 0 4px;color:#000}
+.regsign .sigs{margin-top:16px}
+.regsign .sigline .ln{height:34px}
 </style>
 
 <div class="masthead">
@@ -255,28 +366,30 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
       <div class="wordmark">Sterling</div>
       <div class="rule"></div>
       <h1>Solicitud de Tarjeta Sterling</h1>
-      <p>Diligencie los datos del cliente. Al finalizar se genera el PDF de la solicitud listo para firma digital.</p>
+      <p>Complete sus datos para solicitar su Tarjeta Sterling. Toma unos minutos y al terminar recibirá su número de radicado.</p>
     </div>
     <div class="cardwrap">
       <div class="silvercard">
+        <div class="swoosh"></div>
         <div>
           <div class="logo">Sterling</div>
           <div class="tier">SILVER</div>
-          <div class="chip"></div>
         </div>
-        <div>
+        <div class="plate">
           <div class="emboss" id="cardName">NOMBRE DEL CLIENTE</div>
+          <div class="digits">00 00000000 000</div>
+          <div class="exp">EXP 00/00</div>
           <div class="meta"><span id="cardStore">Punto de venta</span><span>Solicitud</span></div>
         </div>
       </div>
-      <div class="cardnote">Vista previa · el nombre se toma del formulario</div>
+      <div class="cardnote">Vista previa · su nombre aparecerá en la tarjeta</div>
     </div>
   </div>
 </div>
 
 <div class="benefits">
   <div class="benefits-in">
-    <div class="lead"><em>10%</em> off por apertura de cuenta</div>
+    <div class="lead"><em>10%</em> off por apertura de cuenta <span class="only">Solo en Sterling</span></div>
     <ul>
       <li>Sin cuota de manejo</li>
       <li>Entrega inmediata de la mercancía</li>
@@ -296,6 +409,18 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
 <main>
   <form id="app" novalidate></form>
 
+  <div class="reg">
+    <header>
+      <h2>Reglamento y condiciones</h2>
+      <span class="hint">Léalo antes de marcar las autorizaciones</span>
+    </header>
+    <div class="regbox" id="regBox" tabindex="0"></div>
+    <div class="regfoot">
+      <span id="regStatus">Desplace para leer el reglamento completo</span>
+      <button type="button" class="reglink" id="regTop">Volver al inicio</button>
+    </div>
+  </div>
+
   <div class="consent">
     <header><h2>Declaración y autorizaciones</h2></header>
     <div class="body">
@@ -304,23 +429,23 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
       <div class="check" id="wrap_ackReglamento">
         <input type="checkbox" id="ackReglamento" data-consent>
         <span class="txt">
-          <label for="ackReglamento">El cliente declara haber leído y comprendido el reglamento de la Tarjeta Sterling y acepta sus términos y condiciones.</label>
-          <small>Obligatorio. El reglamento se entrega al cliente antes de firmar.</small>
+          <label for="ackReglamento">Declaro haber leído y comprendido el reglamento y condiciones de la Tarjeta Sterling que aparece arriba, y acepto sus términos.</label>
+          <small>Obligatorio. El texto completo queda anexo en el PDF de su solicitud.</small>
         </span>
       </div>
 
       <div class="check" id="wrap_ackCredito">
         <input type="checkbox" id="ackCredito" data-consent>
         <span class="txt">
-          <label for="ackCredito">El cliente autoriza a Sterling de Colombia S.A. a consultar, solicitar, reportar y actualizar su información financiera y crediticia ante centrales de información y operadores de riesgo.</label>
-          <small>Obligatorio. Incluye el tratamiento de sus datos personales conforme a la Ley 1581 de 2012 y la política de privacidad de Sterling de Colombia S.A.</small>
+          <label for="ackCredito">Autorizo de manera previa, expresa e informada a Sterling de Colombia S.A. a consultar, solicitar, reportar y actualizar mi información financiera y crediticia ante centrales de información y operadores de riesgo.</label>
+          <small>Obligatorio. Incluye el tratamiento de mis datos personales conforme a la Ley 1581 de 2012 y a la política de tratamiento de datos de la compañía.</small>
         </span>
       </div>
 
       <div class="check">
         <input type="checkbox" id="ackComercial">
         <span class="txt">
-          <label for="ackComercial">El cliente autoriza el envío de información comercial y promocional de las marcas del grupo.</label>
+          <label for="ackComercial">Autorizo el envío de información comercial y promocional de las marcas del grupo.</label>
           <small>Opcional.</small>
         </span>
       </div>
@@ -332,12 +457,12 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
     <div class="bm">Carolina Herrera</div>
     <div class="bm">Purificación García</div>
     <div class="bm">Malva</div>
+    <div class="bm">Tiffany &amp; Co.</div>
   </div>
 </main>
 
 <div class="actions">
-  <button type="button" class="btn-primary" id="btnSend">Enviar al equipo de crédito</button>
-  <button type="button" class="btn-ghost" id="btnPdf">Solo descargar PDF</button>
+  <button type="button" class="btn-primary" id="btnSend">Enviar mi solicitud</button>
   <button type="button" class="btn-ghost" id="btnRetry" hidden>Reintentar envío</button>
   <button type="button" class="btn-ghost" id="btnClear">Limpiar formulario</button>
   <div class="spacer"></div>
@@ -351,12 +476,10 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
    CONFIGURACIÓN — lo único que hay que editar
    endpoint : URL del Web App de Google Apps Script (termina en /exec)
    token    : la misma clave que puso en el script. Cámbiela.
-   copiaLocal: true = el asesor además descarga el PDF en su equipo
 ================================================================== */
 const CONFIG = {
   endpoint: 'https://solicitudes-sterling.summer-sun-3e62.workers.dev',
-  token: 'sterling-retiro-2026-QpT4vN8mKa',
-  copiaLocal: true
+  token: 'sterling-retiro-2026-QpT4vN8mKa'
 };
 
 /* ------------------------------------------------------------------
@@ -364,26 +487,114 @@ const CONFIG = {
 ------------------------------------------------------------------ */
 const LEGAL = "Los datos aquí consignados son verdaderos y se dan con el objeto de que Sterling de Colombia S.A. financie la compra de los productos que deseo adquirir, sujeta dicha financiación a las condiciones y términos que para dichos efectos ha establecido Sterling de Colombia S.A. en el reglamento vigente. En constancia de haber leído y comprendido el alcance de dicho reglamento y aceptando los términos y condiciones del mismo, firmo la presente solicitud.";
 
+/* ------------------------------------------------------------------
+   Reglamento y condiciones — texto oficial
+------------------------------------------------------------------ */
+const REGLAMENTO_TITULO = 'Reglamento y condiciones del crédito rotativo y de la Tarjeta otorgados por Sterling de Colombia S.A.';
+
+const REGLAMENTO = [
+"1. Por virtud de la solicitud impresa en el anverso y de su aceptación por parte de Sterling de Colombia S.A., en adelante Sterling, podrá expedir a su arbitrio, al solicitante, una Tarjeta Sterling, caso en el cual el tarjetahabiente adquiere los derechos y acepta las obligaciones establecidas en el presente reglamento, cuyo texto declara conocer.",
+"2. Cuando haya causal válida Sterling podrá modificar las condiciones del presente reglamento, debiendo previamente comunicar la decisión por escrito al titular de la tarjeta.",
+"3. Sterling se reserva el derecho de suspender o cancelar la tarjeta y exigir su inmediata devolución al tarjetahabiente. El tarjetahabiente podrá igualmente solicitar la cancelación de su tarjeta de crédito, hallándose a paz y salvo con Sterling, para lo cual deberá remitir la correspondiente comunicación y restituir la tarjeta recibida.",
+"4. Con la tarjeta otorgada por Sterling el tarjetahabiente podrá adquirir bienes en todos los almacenes de Sterling de Colombia S.A. y en aquellos que Sterling estipule, hasta por la cantidad que en forma de crédito rotativo determine Sterling.",
+"5. Para poder efectuar adquisiciones al amparo de la tarjeta Sterling, esta debe ser presentada por el tarjetahabiente, quien firmará a una tinta en cada caso, previa verificación de su cuantía, el respectivo comprobante de crédito y factura de compraventa y se identificará plenamente ante el almacén que se lo solicite.",
+"6. Sterling mensualmente enviará a los tarjetahabientes un \u201cExtracto\u201d a su última dirección registrada, mediante la cual liquidará de acuerdo con las condiciones de la adquisición, las sumas que resulte a deberle el tarjetahabiente por capital e intereses, las cuales debe cancelar sin lugar a requerimientos dentro de los plazos y condiciones fijados en aquel.",
+"7. El tarjetahabiente se obligará a pagar a Sterling el monto total de las adquisiciones efectuadas con la utilización de la tarjeta. Si desea acogerse a los plazos que concede Sterling, DEBERÁ cancelar por lo menos el valor que para tal efecto se indique en el \u201cExtracto\u201d, pago que será exigible en la \u201cFecha de Facturación\u201d allí indicada. Sin embargo, el pago se puede realizar hasta la fecha \u201cpague antes del\u201d, caso contrario se causarán intereses de mora desde la \u201cFecha de Facturación\u201d hasta el día en el que el tarjetahabiente pague su cuenta, liquidados a la tasa autorizada por la Superintendencia Bancaria para esa modalidad.",
+"8. La mora en el pago de los saldos a cargo del tarjetahabiente, además de los intereses previstos en la cláusula anterior, faculta a Sterling para declarar vencidos los plazos y exigir la cancelación inmediata de todas las sumas a cargo del tarjetahabiente.",
+"9. En el evento que el tarjetahabiente no reciba oportunamente el \u201cExtracto\u201d, este queda obligado a reclamarlo por intermedio de cualquiera de los almacenes de Sterling, sin que por ningún motivo pueda alegar su no recibo como causa de incumplimiento.",
+"10. Para adelantar los correspondientes procesos de cobro judicial, bastará con la presentación del respectivo pagaré.",
+"11. El recibo de la Tarjeta Sterling impone la obligación de firmarla inmediatamente y de custodiarla de modo que ninguna otra persona pueda hacer uso de ella, y por lo tanto el usuario asume el riesgo ante Sterling, hasta la culpa leve por cualquier compra o uso indebido que de ella se haga, a causa de negligencia o descuido en la obligación de custodia esmerada que adquiere.",
+"12. La tarjeta es de propiedad de Sterling y el tarjetahabiente se obliga a devolverla en el momento que aquella se solicite. En caso de extravío, hurto o robo de la misma, el tarjetahabiente se obliga a formular la denuncia correspondiente ante la autoridad competente y dar aviso escrito inmediatamente a las oficinas de Sterling. De no hacerlo así, responderá ante Sterling y asumirá como deuda a su cargo todas las adquisiciones o compras que se hagan con la tarjeta extraviada, hurtada o robada. La responsabilidad del tarjetahabiente cesa a partir del momento de recibo del aviso escrito a Sterling acompañado de la copia de la correspondiente denuncia.",
+"13. El tarjetahabiente adquiere la obligación de registrar su dirección y domicilio y a notificar por escrito a Sterling todo cambio al respecto, y cuando se ausente temporal o definitivamente, y quiera continuar con los pagos a plazos, tendrá que informar con la debida anticipación, la persona y dirección a quien deben presentarse los \u201cExtractos\u201d para su pago.",
+"14. La entrega de la tarjeta se hace en consideración a las condiciones personales de su titular y en consecuencia este no la podrá ceder por ningún motivo ni hacerse sustituir por terceros en el ejercicio de los derechos que la tarjeta otorga.",
+"15. Sterling podrá cancelar anticipadamente la tarjeta o no renovarla, decisión que hará de plazo vencido la totalidad de las deudas a cargo del tarjetahabiente que se encuentren pendientes de pago, e impone la obligación de devolver inmediatamente la tarjeta, en caso de incurrir en cualquiera de los siguientes eventos: a) Incumplimiento o violación de cualquiera de las obligaciones contraídas. b) No pago dentro de los términos y condiciones consignados en el \u201cExtracto\u201d de cualquier suma o cuota que se esté adeudando. c) Si se utiliza la tarjeta para fines no previstos o en cuantía superior al límite autorizado por Sterling. d) El giro de cheques que el Banco librado no pague por cualquier causa. e) Cuando le sea cancelada cualquiera de las tarjetas de crédito que posea. f) En el caso que le sea cancelada su cuenta corriente bancaria por cualquier motivo. g) En el caso que el tarjetahabiente sea demandado judicialmente o le sean embargados bienes por cualquier acción. h) Por muerte del tarjetahabiente.",
+"16. En caso de que una misma Tarjeta Sterling se expida para ser usada por dos (2) o más personas, cada una de ellas se compromete de manera solidaria con los demás usuarios de la misma tarjeta a pagar el importe correspondiente a las compras y demás erogaciones hechas, de manera que STERLING DE COLOMBIA S.A. podrá cobrar a su elección a todos o cada uno de los usuarios de la misma tarjeta, por lo tanto la suscripción del presente contrato equivale a la suscripción del pagaré que se expide cada vez que se efectúe una compra.",
+"17. STERLING DE COLOMBIA S.A., identificado con Nit. 860.048.245-5 y con domicilio en la carrera 19 No. 82-85 P 8 de la ciudad de Bogotá D.C., recolecta, almacena, usa y circula datos personales; requiere obtener su consentimiento para que, de manera libre, previa, expresa, voluntaria, inequívoca y debidamente informada, autorice la recolección, registro, almacenamiento, uso, circulación, supresión, procesamiento, compilación, intercambio, actualización, y disposición de los datos personales que sean suministrados y que se incorporen en las distintas bases de datos, o en repositorios electrónicos de todo tipo. Los datos personales solicitados por STERLING DE COLOMBIA S.A. corresponden exclusivamente a aquellos que resultan pertinentes, necesarios y adecuados para el desarrollo de las finalidades previamente informadas en la Política de Protección de Datos Personales, y las directamente relacionadas con su solicitud de la Tarjeta STERLING y/o crédito rotativo; motivo por el cual, le solicitamos su autorización con las siguientes finalidades específicas:"
+];
+
+const REGLAMENTO_FINALIDADES = [
+"Conocer y consultar la información del Titular del dato que reposen en bases de datos de operadores de Centrales de riesgo, referente a su información Financiera, Comercial y Crediticia.",
+"Consultar información relacionada con la liquidación o pago de aportes al sistema de seguridad social y parafiscales (presente, pasado y futura).",
+"Consultar información relacionada con los derechos y obligaciones originados en virtud de cualquier contrato celebrado u operación que haya llegado o llegare a celebrar o realizar.",
+"Consultar multas y sanciones ante las diferentes autoridades administrativas y judiciales.",
+"Consultar información sobre activos, bienes o derechos en entidades públicas o privadas, que se encuentren en buscadores públicos, redes sociales o publicaciones físicas o electrónicas, bien fuere en Colombia o en el exterior."
+];
+
+const REGLAMENTO_CIERRE = [
+"STERLING DE COLOMBIA S.A. pone de presente que los datos aquí recolectados se emplean en el respeto de los derechos consagrados en la legislación colombiana y en especial a la Constitución y la Ley 1581 de 2012 y demás Decretos reglamentarios.",
+"Usted podrá formular consultas, peticiones y reclamos ante STERLING DE COLOMBIA S.A. con el propósito de conocer y/o informarse sobre el tratamiento del que son objeto, y cuando los mismos deban ser actualizados, modificados o rectificados. A su vez, si en el desarrollo de las diversas operaciones que se efectúen sobre sus datos personales, usted considera que estos han sido utilizados de manera contraria a las finalidades autorizadas o a las normas y principios que regulan el tratamiento de información personal, podrá comunicarse con STERLING DE COLOMBIA S.A. a fin de subsanar cualquier inconformidad o solicitar la supresión de los mismos si fuere procedente.",
+"Si desea obtener más información en relación con los medios y mecanismos dispuestos por STERLING DE COLOMBIA S.A. para el ejercicio de los derechos que le asisten como Titular, se le invita a solicitar vía e-mail la Política de Tratamiento de Protección de Datos Personales; así mismo, para contactarse con el Responsable del tratamiento de la información personal, puede dirigirse a través del correo datospersonales@sterlingjoyeros.com.",
+"Manifiesto que la presente autorización me fue solicitada y puesta de presente antes de entregar mis datos y que la suscribo de forma libre y voluntaria una vez leída en su totalidad."
+];
+
+/* ------------------------------------------------------------------
+   Almacenes por marca — orden: Sterling, Malva, Tiffany, CH, PG
+------------------------------------------------------------------ */
+const ALMACENES = [
+  { m:"Sterling", t:[
+    { c:"st-baq",     n:"Barranquilla · Luxury Gardens" },
+    { c:"st-bog-and", n:"Bogotá · Centro Comercial Andino" },
+    { c:"st-bog-uni", n:"Bogotá · Centro Comercial Unicentro" },
+    { c:"st-cal",     n:"Cali · Centro Comercial Unicentro" },
+    { c:"st-ctg",     n:"Cartagena · La Serrezuela" },
+    { c:"st-med",     n:"Medellín · Centro Comercial El Tesoro" }
+  ]},
+  { m:"Malva", t:[
+    { c:"ma-baq",     n:"Barranquilla · C.C. Mallplaza Buenavista - Nivel 1" },
+    { c:"ma-bog-ret", n:"Bogotá · C.C. El Retiro (al lado de Andrés D.C.)" },
+    { c:"ma-bog-109", n:"Bogotá · Malva Calle 109" },
+    { c:"ma-bog-gra", n:"Bogotá · Malva Shoe Shop - Gran Estación" },
+    { c:"ma-bog-85",  n:"Bogotá · Malva Shoe Shop Cl 85" },
+    { c:"ma-buc",     n:"Bucaramanga · C.C. La Quinta" },
+    { c:"ma-cal",     n:"Cali · C.C. Jardín Plaza" },
+    { c:"ma-ctg-ser", n:"Cartagena · C.C. La Serrezuela" },
+    { c:"ma-ctg-cen", n:"Cartagena · Centro Histórico" },
+    { c:"ma-chi",     n:"Chía · Malva Shoe Shop - Fontanar" },
+    { c:"ma-med",     n:"Medellín · C.C. El Tesoro" },
+    { c:"ma-sop",     n:"Sopó · Malva Sopó" }
+  ]},
+  { m:"Tiffany", t:[
+    { c:"ti-bog",     n:"Bogotá · Andino Mall" }
+  ]},
+  { m:"Carolina Herrera", t:[
+    { c:"ch-baq",     n:"Barranquilla · CH Barranquilla" },
+    { c:"ch-bog",     n:"Bogotá · CH Casa Herrera Bogotá" },
+    { c:"ch-buc",     n:"Bucaramanga · CH Bucaramanga" },
+    { c:"ch-cal",     n:"Cali · CH Unicentro" },
+    { c:"ch-ctg",     n:"Cartagena · CH La Serrezuela" },
+    { c:"ch-med",     n:"Medellín · CH El Tesoro Parque Comercial" },
+    { c:"ch-sop",     n:"Sopó · CH Outlet Parque Arauco Sopó" }
+  ]},
+  { m:"Purificación García", t:[
+    { c:"pg-baq",     n:"Barranquilla · PG Barranquilla" },
+    { c:"pg-bog-ret", n:"Bogotá · PG C.C. El Retiro" },
+    { c:"pg-bog-col", n:"Bogotá · PG C.C. Parque La Colina" },
+    { c:"pg-ctg",     n:"Cartagena · PG C.C. La Serrezuela" },
+    { c:"pg-sop",     n:"Sopó · PG Outlet C.C. Arauco Sopó" }
+  ]}
+];
+
+/* Búsqueda por código corto, para los enlaces con ?t= */
+const POR_CODIGO = {};
+ALMACENES.forEach(g => g.t.forEach(x => { POR_CODIGO[x.c] = g.m + ' — ' + x.n; }));
+
 const SECTIONS = [
-  { id:'venta', title:'Punto de venta', hint:'Uso del asesor', fields:[
-    { n:'tienda', l:'Almacén', t:'select', w:4, req:true, opts:['','El Retiro','Andino','Santafé','Unicentro Bogotá','Hacienda Santa Bárbara','Buenavista Barranquilla','Viva Barranquilla','El Tesoro Medellín','Santafé Medellín','Otro'] },
-    { n:'marca', l:'Marca', t:'select', w:4, req:true, opts:['','Sterling','Carolina Herrera','Purificación García','Malva','Tiffany'] },
-    { n:'asesor', l:'Asesor', w:4, req:true },
-    { n:'cupoSolicitado', l:'Cupo solicitado', t:'money', w:4 },
-    { n:'valorCompra', l:'Valor de la compra en curso', t:'money', w:4 },
-    { n:'fecha', l:'Fecha de solicitud', t:'date', w:4, req:true }
+  { id:'venta', title:'Punto de venta', fields:[
+    { n:'tienda', l:'Almacén', t:'tiendas', w:6, req:true },
+    { n:'asesor', l:'Asesor', w:3 },
+    { n:'fecha', l:'Fecha de solicitud', t:'date', w:3, req:true }
   ]},
   { id:'personales', title:'Datos personales', fields:[
     { n:'nombres', l:'Nombres', w:4, req:true },
     { n:'apellidos', l:'Apellidos', w:4, req:true },
-    { n:'cc', l:'C.C. No.', w:4, req:true, num:true },
+    { n:'cc', l:'Número de identificación', w:4, req:true, num:true },
     { n:'nacimiento', l:'Fecha de nacimiento', t:'date', w:4, req:true },
     { n:'celular', l:'Celular', t:'tel', w:4, req:true, num:true },
     { n:'telefono', l:'Teléfono fijo', t:'tel', w:4, num:true },
     { n:'email', l:'Email', t:'email', w:4, req:true },
     { n:'dirResidencia', l:'Dirección de residencia', w:4, req:true },
     { n:'ciudad', l:'Ciudad', w:4, req:true },
-    { n:'dirCorrespondencia', l:'Dirección de correspondencia', w:4 },
+    { n:'dirCorrespondencia', l:'Dirección de correspondencia', w:4, req:true, mirror:'dirResidencia', mirrorLabel:'Igual a la de residencia' },
     { n:'vivienda', l:'Vivienda', t:'seg', w:4, opts:['Casa','Apartamento'] },
     { n:'tenencia', l:'Tenencia', t:'seg', w:4, opts:['Propia','Arrendada'] }
   ]},
@@ -393,11 +604,11 @@ const SECTIONS = [
     { n:'dirEmpresa', l:'Dirección de la empresa', w:4 },
     { n:'cargo', l:'Cargo', w:4 },
     { n:'profesion', l:'Profesión', w:4 },
-    { n:'antiguedad', l:'Antigüedad', w:4 },
+    { n:'antiguedad', l:'Antigüedad', w:4, h:'Tiempo que lleva en la empresa' },
     { n:'sueldo', l:'Sueldo mensual', t:'money', w:4, req:true },
-    { n:'otrosIngresos', l:'Otros ingresos', t:'money', w:4 }
+    { n:'otrosIngresos', l:'Otros ingresos', t:'money', w:4, h:'Arriendos, honorarios, pensión' }
   ]},
-  { id:'refPersonales', title:'Referencias personales', fields:[
+  { id:'refPersonales', title:'Referencias personales', hint:'Personas que puedan dar fe de usted', fields:[
     { n:'ref1Nombre', l:'Referencia 1 — nombre', w:4, req:true },
     { n:'ref1Tel', l:'Referencia 1 — teléfono', t:'tel', w:4, req:true, num:true },
     { n:'ref1Parentesco', l:'Referencia 1 — parentesco', w:4 },
@@ -405,38 +616,34 @@ const SECTIONS = [
     { n:'ref2Tel', l:'Referencia 2 — teléfono', t:'tel', w:4, num:true },
     { n:'ref2Parentesco', l:'Referencia 2 — parentesco', w:4 }
   ]},
-  { id:'refComerciales', title:'Referencias comerciales', fields:[
-    { n:'com1Nombre', l:'Establecimiento', w:4 },
-    { n:'com1Tel', l:'Teléfono', t:'tel', w:4, num:true },
-    { n:'com1Valor', l:'Valor / cupo', t:'money', w:4 }
+  { id:'refComerciales', title:'Referencias comerciales', hint:'Opcional · almacenes donde tenga crédito', fields:[
+    { n:'com1Nombre', l:'Establecimiento', w:6 },
+    { n:'com1Tel', l:'Teléfono', t:'tel', w:6, num:true }
   ]},
-  { id:'bancarias', title:'Referencias bancarias y tarjetas', fields:[
+  { id:'bancarias', title:'Referencias bancarias y tarjetas', hint:'Opcional', fields:[
     { n:'banco', l:'Banco', w:4 },
     { n:'cuenta', l:'Cuenta No.', w:4, num:true },
-    { n:'sucursal', l:'Sucursal', w:4 },
-    { n:'tcBanco', l:'Tarjeta de crédito — banco', w:4 },
-    { n:'tcNumero', l:'Tarjeta de crédito — últimos 4 dígitos', w:4, num:true, max:4 },
-    { n:'tcCupo', l:'Cupo aproximado', t:'money', w:4 }
+    { n:'tcBanco', l:'Tarjeta de crédito — banco', w:4 }
   ]},
-  { id:'vehiculo', title:'Automóvil propio', hint:'Si aplica', fields:[
+  { id:'vehiculo', title:'Automóvil propio', hint:'Opcional', fields:[
     { n:'autoMarca', l:'Marca', w:3 },
     { n:'autoModelo', l:'Modelo', w:3 },
     { n:'autoAnio', l:'Año', w:3, num:true, max:4 },
     { n:'autoPlaca', l:'Placa', w:3 }
   ]},
-  { id:'conyuge', title:'Datos del cónyuge', hint:'Si aplica', fields:[
+  { id:'conyuge', title:'Datos del cónyuge', hint:'Solo si es casado o vive en unión libre', fields:[
     { n:'conNombre', l:'Nombres', w:4 },
     { n:'conApellido', l:'Apellidos', w:4 },
-    { n:'conCc', l:'C.C. No.', w:4, num:true },
+    { n:'conCc', l:'Número de identificación', w:4, num:true },
     { n:'conEmpresa', l:'Empresa', w:4 },
     { n:'conTel', l:'Teléfono', t:'tel', w:4, num:true },
     { n:'conSueldo', l:'Sueldo', t:'money', w:4 },
     { n:'conOtros', l:'Otros ingresos', t:'money', w:4 }
   ]},
-  { id:'conjunta', title:'Persona conjunta', hint:'Autorizada para comprar con el cupo', fields:[
+  { id:'conjunta', title:'Persona conjunta', hint:'Opcional · alguien más que podrá comprar con su cupo', fields:[
     { n:'cjNombre', l:'Nombres', w:4 },
     { n:'cjApellido', l:'Apellidos', w:4 },
-    { n:'cjCc', l:'C.C. No.', w:4, num:true },
+    { n:'cjCc', l:'Número de identificación', w:4, num:true },
     { n:'cjParentesco', l:'Parentesco', w:4 },
     { n:'cjTel', l:'Teléfono', t:'tel', w:4, num:true }
   ]}
@@ -447,6 +654,31 @@ const SECTIONS = [
 ------------------------------------------------------------------ */
 const form = document.getElementById('app');
 document.getElementById('legalText').textContent = LEGAL;
+
+/* --- reglamento en pantalla --- */
+function reglamentoHTML() {
+  return '<h3>' + REGLAMENTO_TITULO + '</h3>'
+    + REGLAMENTO.map(p => '<p>' + p + '</p>').join('')
+    + '<ul>' + REGLAMENTO_FINALIDADES.map(p => '<li>' + p + '</li>').join('') + '</ul>'
+    + REGLAMENTO_CIERRE.map(p => '<p>' + p + '</p>').join('');
+}
+const regBox = document.getElementById('regBox');
+regBox.innerHTML = reglamentoHTML();
+
+let regLeido = false;
+regBox.addEventListener('scroll', () => {
+  if (regLeido) return;
+  if (regBox.scrollTop + regBox.clientHeight >= regBox.scrollHeight - 24) {
+    regLeido = true;
+    const s = document.getElementById('regStatus');
+    s.textContent = 'Reglamento revisado hasta el final';
+    s.className = 'read';
+  }
+});
+document.getElementById('regTop').addEventListener('click', () => {
+  regBox.scrollTo({ top: 0, behavior: 'smooth' });
+  regBox.focus();
+});
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const spanClass = w => 'grid-column:span ' + (w * 3) + ';';
@@ -459,12 +691,29 @@ SECTIONS.forEach(sec => {
   sec.fields.forEach(f => {
     const id = 'f_' + f.n;
     html += '<div class="field' + (f.req ? ' req' : '') + '" id="w_' + f.n + '" style="' + spanClass(f.w || 4) + '">';
+    if (f.mirror) {
+      html += '<span class="mirrorrow"><label for="' + id + '">' + esc(f.l) + '</label>'
+           + '<label class="mirror"><input type="checkbox" id="mir_' + f.n + '" data-mirror="' + f.n + '" data-from="' + f.mirror + '">'
+           + '<span>' + esc(f.mirrorLabel || 'Igual') + '</span></label></span>'
+           + '<input type="text" id="' + id + '" name="' + f.n + '">'
+           + '<span class="err">Campo obligatorio</span></div>';
+      return;
+    }
     if (f.t === 'seg') {
       html += '<span class="flabel">' + esc(f.l) + '</span><div class="seg">';
       f.opts.forEach((o, i) => {
         html += '<label><input type="radio" name="' + f.n + '" value="' + esc(o) + '" id="' + id + '_' + i + '"><span>' + esc(o) + '</span></label>';
       });
       html += '</div>';
+    } else if (f.t === 'tiendas') {
+      html += '<label for="' + id + '">' + esc(f.l) + '</label><select id="' + id + '" name="' + f.n + '">'
+           + '<option value="">Seleccione el almacén…</option>';
+      ALMACENES.forEach(g => {
+        html += '<optgroup label="' + esc(g.m) + '">';
+        g.t.forEach(x => { html += '<option value="' + esc(g.m + ' — ' + x.n) + '">' + esc(x.n) + '</option>'; });
+        html += '</optgroup>';
+      });
+      html += '</select>';
     } else if (f.t === 'select') {
       html += '<label for="' + id + '">' + esc(f.l) + '</label><select id="' + id + '" name="' + f.n + '">';
       f.opts.forEach(o => { html += '<option value="' + esc(o) + '">' + (o ? esc(o) : 'Seleccione…') + '</option>'; });
@@ -478,13 +727,63 @@ SECTIONS.forEach(sec => {
            + (f.num ? ' inputmode="numeric" data-num' : '')
            + (f.max ? ' maxlength="' + f.max + '"' : '') + '>';
     }
-    html += '<span class="err">Campo obligatorio</span></div>';
+    html += '<span class="err">Campo obligatorio</span>'
+         + (f.h ? '<span class="fhint">' + esc(f.h) + '</span>' : '') + '</div>';
   });
 
   html += '</div>';
   wrap.innerHTML = html;
   form.appendChild(wrap);
 });
+
+/* Dirección igual a la de residencia */
+form.querySelectorAll('[data-mirror]').forEach(chk => {
+  const destino = form.querySelector('[name="' + chk.dataset.mirror + '"]');
+  const origen = form.querySelector('[name="' + chk.dataset.from + '"]');
+  if (!destino || !origen) return;
+
+  const sincronizar = () => {
+    if (!chk.checked) return;
+    destino.value = origen.value;
+    destino.closest('.field').classList.remove('invalid');
+  };
+  chk.addEventListener('change', () => {
+    destino.readOnly = chk.checked;
+    destino.closest('.field').classList.toggle('locked', chk.checked);
+    if (chk.checked) sincronizar(); else destino.focus();
+    updateProgress();
+  });
+  origen.addEventListener('input', () => { sincronizar(); updateProgress(); });
+});
+
+/* ------------------------------------------------------------------
+   Origen desde el enlace:  ?t=codigo-tienda&a=nombre-asesor
+------------------------------------------------------------------ */
+(function origenDesdeURL() {
+  const p = new URLSearchParams(location.search);
+  const cod = (p.get('t') || '').trim().toLowerCase();
+  const ase = (p.get('a') || '').trim();
+
+  const tienda = POR_CODIGO[cod] || '';
+  if (!tienda && !ase) return;
+
+  const selT = form.querySelector('[name=tienda]');
+  const inpA = form.querySelector('[name=asesor]');
+  if (tienda && selT) selT.value = tienda;
+  if (ase && inpA) inpA.value = ase;
+
+  // Si vino la tienda, el cliente no necesita ver la sección
+  if (tienda) {
+    const sec = form.querySelector('.section');
+    if (sec) sec.style.display = 'none';
+
+    const banner = document.createElement('div');
+    banner.className = 'origen';
+    banner.innerHTML = '<span><span class="k">Solicitud iniciada en</span><span class="v">' + esc(tienda) + '</span></span>'
+      + (ase ? '<span><span class="k">Asesor</span><span class="v">' + esc(ase) + '</span></span>' : '');
+    form.parentNode.insertBefore(banner, form);
+  }
+})();
 
 /* fecha de hoy por defecto */
 const today = new Date();
@@ -520,8 +819,8 @@ function paint(el) {
 function updateCard() {
   const n = (val('nombres') + ' ' + val('apellidos')).trim();
   document.getElementById('cardName').textContent = n ? n.toUpperCase() : 'NOMBRE DEL CLIENTE';
-  const t = val('tienda'), m = val('marca');
-  document.getElementById('cardStore').textContent = (m || t) ? [m, t].filter(Boolean).join(' · ') : 'Punto de venta';
+  const t = val('tienda');
+  document.getElementById('cardStore').textContent = t || 'Punto de venta';
 }
 
 const val = n => {
@@ -583,7 +882,7 @@ function validate() {
     firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setStatus(consentMissing && !document.querySelector('.field.invalid')
       ? 'Falta marcar las autorizaciones obligatorias.'
-      : 'Revise los campos marcados en rojo.', true);
+      : 'Complete los campos marcados en rojo.', true);
     return false;
   }
   return true;
@@ -619,18 +918,18 @@ function buildDoc() {
     + '<div class="rt">Solicitud de Tarjeta Sterling<br>Folio ' + esc(folio) + ' · ' + esc(fdate(val('fecha'))) + '</div></div>';
 
   const foot = p => '<div class="pg-foot"><span>Sterling de Colombia S.A. · NIT 000.000.000-0</span>'
-    + '<span>' + esc(nombre) + ' · C.C. ' + esc(dash(val('cc'))) + '</span><span>Página ' + p + ' de 2</span></div>';
+    + '<span>' + esc(nombre) + ' · C.C. ' + esc(dash(val('cc'))) + '</span><span>Página ' + p + ' de 3</span></div>';
 
   const p1 = '<div class="page">' + head
     + '<p class="pg-title">Datos del solicitante</p>'
 
     + '<div class="blk"><h3>Punto de venta</h3><div class="rows">'
-    + cell('Almacén', dash(val('tienda'))) + cell('Marca', dash(val('marca'))) + cell('Asesor', dash(val('asesor')))
-    + cell('Cupo solicitado', money(val('cupoSolicitado'))) + cell('Compra en curso', money(val('valorCompra'))) + cell('Fecha', fdate(val('fecha')))
+    + cell('Almacén', dash(val('tienda')), 'w66') + cell('Asesor', dash(val('asesor')))
+    + cell('Fecha de solicitud', fdate(val('fecha')), 'w100')
     + '</div></div>'
 
     + '<div class="blk"><h3>Datos personales</h3><div class="rows">'
-    + cell('Nombres', dash(val('nombres')), 'w33') + cell('Apellidos', dash(val('apellidos')), 'w33') + cell('C.C. No.', dash(val('cc')), 'w33')
+    + cell('Nombres', dash(val('nombres')), 'w33') + cell('Apellidos', dash(val('apellidos')), 'w33') + cell('Número de identificación', dash(val('cc')), 'w33')
     + cell('Fecha de nacimiento', fdate(val('nacimiento'))) + cell('Celular', dash(val('celular'))) + cell('Teléfono fijo', dash(val('telefono')))
     + cell('Email', dash(val('email')), 'w66') + cell('Ciudad', dash(val('ciudad')))
     + cell('Dirección de residencia', dash(val('dirResidencia')), 'w50') + cell('Dirección de correspondencia', dash(val('dirCorrespondencia')), 'w50')
@@ -649,9 +948,9 @@ function buildDoc() {
     + '</div></div>'
 
     + '<div class="blk"><h3>Referencias comerciales, bancarias y tarjetas</h3><div class="rows">'
-    + cell('Establecimiento', dash(val('com1Nombre'))) + cell('Teléfono', dash(val('com1Tel'))) + cell('Valor / cupo', money(val('com1Valor')))
-    + cell('Banco', dash(val('banco'))) + cell('Cuenta No.', dash(val('cuenta'))) + cell('Sucursal', dash(val('sucursal')))
-    + cell('Tarjeta de crédito — banco', dash(val('tcBanco'))) + cell('Últimos 4 dígitos', dash(val('tcNumero'))) + cell('Cupo aproximado', money(val('tcCupo')))
+    + cell('Establecimiento', dash(val('com1Nombre')), 'w50') + cell('Teléfono', dash(val('com1Tel')), 'w50')
+    + cell('Banco', dash(val('banco')), 'w50') + cell('Cuenta No.', dash(val('cuenta')), 'w50')
+    + cell('Tarjeta de crédito — banco', dash(val('tcBanco')), 'w100')
     + '</div></div>'
 
     + '<div class="blk"><h3>Automóvil propio</h3><div class="rows">'
@@ -664,13 +963,13 @@ function buildDoc() {
     + '<p class="pg-title">Cónyuge, persona conjunta y autorizaciones</p>'
 
     + '<div class="blk"><h3>Datos del cónyuge</h3><div class="rows">'
-    + cell('Nombres', dash(val('conNombre'))) + cell('Apellidos', dash(val('conApellido'))) + cell('C.C. No.', dash(val('conCc')))
+    + cell('Nombres', dash(val('conNombre'))) + cell('Apellidos', dash(val('conApellido'))) + cell('Número de identificación', dash(val('conCc')))
     + cell('Empresa', dash(val('conEmpresa'))) + cell('Teléfono', dash(val('conTel'))) + cell('Sueldo', money(val('conSueldo')))
     + cell('Otros ingresos', money(val('conOtros')))
     + '</div></div>'
 
     + '<div class="blk"><h3>Persona conjunta autorizada</h3><div class="rows">'
-    + cell('Nombres', dash(val('cjNombre'))) + cell('Apellidos', dash(val('cjApellido'))) + cell('C.C. No.', dash(val('cjCc')))
+    + cell('Nombres', dash(val('cjNombre'))) + cell('Apellidos', dash(val('cjApellido'))) + cell('Número de identificación', dash(val('cjCc')))
     + cell('Parentesco', dash(val('cjParentesco'))) + cell('Teléfono', dash(val('cjTel')))
     + '</div></div>'
 
@@ -697,7 +996,28 @@ function buildDoc() {
     + '<br>Documento generado electrónicamente para firma digital. Las autorizaciones marcadas fueron confirmadas por el solicitante antes de la generación de este documento.</div>'
     + foot(2) + '</div>';
 
-  return p1 + p2;
+  /* Anexo: reglamento completo, dos columnas */
+  const corte = 12;
+  const col = arr => arr.map(t => '<p>' + esc(t) + '</p>').join('');
+  const colA = col(REGLAMENTO.slice(0, corte));
+  const colB = col(REGLAMENTO.slice(corte))
+    + '<ul>' + REGLAMENTO_FINALIDADES.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>'
+    + col(REGLAMENTO_CIERRE);
+
+  const p3 = '<div class="page">' + head
+    + '<p class="pg-title">Anexo · Reglamento y condiciones</p>'
+    + '<p class="regtitle">' + esc(REGLAMENTO_TITULO) + '</p>'
+    + '<div class="regcols"><div class="regcol">' + colA + '</div><div class="regcol">' + colB + '</div></div>'
+    + '<div class="regsign">'
+    + '<p>El solicitante declara haber recibido, leído y comprendido el presente reglamento antes de firmar la solicitud.</p>'
+    + '<div class="sigs"><div class="sigline"><div class="ln"></div><div class="cap">Firma del solicitante</div>'
+    + '<div class="sub">' + esc(nombre || '—') + '<br>C.C. ' + esc(dash(val('cc'))) + '</div></div>'
+    + '<div class="sigline"><div class="ln"></div><div class="cap">Firma persona conjunta</div>'
+    + '<div class="sub">' + esc(((val('cjNombre') + ' ' + val('cjApellido')).trim() || '—').toUpperCase()) + '<br>C.C. ' + esc(dash(val('cjCc'))) + '</div></div>'
+    + '</div></div>'
+    + foot(3) + '</div>';
+
+  return p1 + p2 + p3;
 }
 
 function ck(on, text) {
@@ -751,11 +1071,10 @@ function collect() {
 
 let pendiente = null;
 const btnSend = document.getElementById('btnSend');
-const btnPdf = document.getElementById('btnPdf');
 const btnRetry = document.getElementById('btnRetry');
 
 function lock(on) {
-  btnSend.disabled = on; btnPdf.disabled = on; btnRetry.disabled = on;
+  btnSend.disabled = on; btnRetry.disabled = on;
 }
 
 async function post(payload) {
@@ -783,16 +1102,15 @@ btnSend.addEventListener('click', async () => {
     pdf = await buildPdf();
   } catch (err) {
     console.error(err);
-    setStatus('No se pudo generar el PDF. Use Imprimir → Guardar como PDF.', true);
+    setStatus('No pudimos preparar el documento. Intente de nuevo.', true);
     lock(false);
     return;
   }
 
   const name = fileName();
-  if (CONFIG.copiaLocal) pdf.save(name);
 
   if (!CONFIG.endpoint) {
-    setStatus('PDF descargado. Falta configurar el envío automático (CONFIG.endpoint).', true);
+    setStatus('Falta configurar el envío automático (CONFIG.endpoint).', true);
     lock(false);
     return;
   }
@@ -805,20 +1123,35 @@ btnSend.addEventListener('click', async () => {
     pdfBase64: pdf.output('datauristring').split(',')[1]
   };
 
-  setStatus('Enviando al equipo de crédito…');
+  setStatus('Enviando su solicitud…');
   try {
     const j = await post(payload);
     pendiente = null;
-    setStatus('Enviado al equipo de crédito · Folio ' + (j.folio || payload.folio));
+    confirmar(j.folio || payload.folio);
   } catch (err) {
     console.error(err);
     pendiente = payload;
     btnRetry.hidden = false;
-    setStatus('No se pudo enviar (revise la conexión). El PDF quedó descargado — reintente.', true);
+    setStatus('No pudimos enviar la solicitud. Revise su conexión e intente de nuevo.', true);
   } finally {
     lock(false);
   }
 });
+
+/* Pantalla de confirmación */
+function confirmar(folio) {
+  document.querySelector('main').innerHTML =
+    '<div class="done">'
+    + '<h2>Solicitud enviada</h2>'
+    + '<p>Recibimos su solicitud de Tarjeta Sterling. Nuestro equipo revisará la información y le informaremos la decisión.</p>'
+    + '<div class="flabel2">Número de radicado</div>'
+    + '<div class="folio">' + esc(folio) + '</div>'
+    + '<p>Guarde este número por si necesita consultar el estado de su solicitud.</p>'
+    + '</div>';
+  document.querySelector('.actions').style.display = 'none';
+  document.querySelector('.progressbar').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 /* Reintento sin regenerar el PDF */
 btnRetry.addEventListener('click', async () => {
@@ -827,36 +1160,19 @@ btnRetry.addEventListener('click', async () => {
   setStatus('Reintentando envío…');
   try {
     const j = await post(pendiente);
+    const f = j.folio || pendiente.folio;
     pendiente = null;
     btnRetry.hidden = true;
-    setStatus('Enviado al equipo de crédito · Folio ' + (j.folio || ''));
+    confirmar(f);
   } catch (err) {
-    setStatus('Sigue sin conexión con el servidor. Reintente en un momento.', true);
-  } finally {
-    lock(false);
-  }
-});
-
-/* Solo descargar, sin enviar */
-btnPdf.addEventListener('click', async () => {
-  if (!validate()) return;
-  lock(true);
-  setStatus('Generando documento…');
-  try {
-    const pdf = await buildPdf();
-    const name = fileName();
-    pdf.save(name);
-    setStatus('Descargado: ' + name);
-  } catch (err) {
-    console.error(err);
-    setStatus('Error al generar el PDF. Use Imprimir → Guardar como PDF.', true);
+    setStatus('Sigue sin conexión. Intente de nuevo en un momento.', true);
   } finally {
     lock(false);
   }
 });
 
 document.getElementById('btnClear').addEventListener('click', () => {
-  if (!confirm('¿Limpiar todos los datos del formulario?')) return;
+  if (!confirm('¿Borrar todo lo que ha escrito?')) return;
   form.reset();
   document.querySelectorAll('[type=checkbox]').forEach(c => c.checked = false);
   document.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
