@@ -3,7 +3,6 @@
 <title>Solicitud de Crédito Sterling</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -349,7 +348,6 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
 /* ---------- offscreen PDF document ---------- */
-#pdfRoot{position:fixed;left:-12000px;top:0;width:794px}
 .page{
   width:794px;min-height:1123px;background:#fff;color:#000;padding:46px 52px;
   font-family:var(--sans);font-size:10.5px;position:relative;
@@ -516,7 +514,6 @@ button{font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transfor
   <span class="status" id="status"></span>
 </div>
 
-<div id="pdfRoot" aria-hidden="true"></div>
 
 <script>
 /* ==================================================================
@@ -1041,175 +1038,435 @@ function setStatus(msg, bad) {
 }
 
 /* ------------------------------------------------------------------
-   Documento PDF
+   Documento PDF — vectorial, texto real y seleccionable
 ------------------------------------------------------------------ */
-const money = n => { const d = digits(n); return d ? '$ ' + nf.format(Number(d)) : '—'; };
-const dash = v => v || '—';
-const fdate = v => {
-  if (!v) return '—';
-  const [y, m, d] = v.split('-');
-  return d + '/' + m + '/' + y;
-};
 
-function cell(k, v, w) {
-  return '<div class="cell ' + (w || 'w33') + '"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>';
+
+/* Generador de PDF vectorial — texto real, seleccionable */
+
+function construirPDF(jsPDF, D, opciones) {
+  const {
+    LOGO, REGLAMENTO_TITULO, REGLAMENTO, REGLAMENTO_FINALIDADES,
+    REGLAMENTO_CIERRE, LEGAL, folio, stamp
+  } = opciones;
+
+  const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
+  const W = 595.28, H = 841.89;
+  const ML = 42, MR = 42;
+  const CW = W - ML - MR;
+
+  const NEGRO = [17, 18, 20];
+  const GRIS = [122, 126, 130];
+  const LINEA = [178, 180, 182];
+
+  const nombre = ((D.nombres || '') + ' ' + (D.apellidos || '')).trim().toUpperCase() || '—';
+  const dash = v => (v && String(v).trim()) ? String(v).trim() : '—';
+  const money = v => {
+    const d = String(v || '').replace(/\D/g, '');
+    return d ? '$ ' + Number(d).toLocaleString('es-CO') : '—';
+  };
+  const fdate = v => {
+    if (!v) return '—';
+    const p = String(v).split('-');
+    return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : v;
+  };
+
+  /* ---------- primitivas ---------- */
+  const setT = (size, color, style) => {
+    doc.setFont('helvetica', style || 'normal');
+    doc.setFontSize(size);
+    doc.setTextColor(color[0], color[1], color[2]);
+  };
+  /* jsPDF ignora el interletrado al medir: se calcula el ancho real */
+  const anchoReal = (t, esp) => doc.getTextWidth(t) + (esp || 0) * t.length;
+  const derecha = (t, y, esp) => {
+    doc.setCharSpace(esp || 0);
+    doc.text(t, W - MR - anchoReal(t, esp), y);
+    doc.setCharSpace(0);
+  };
+  const regla = (y, grosor, color) => {
+    doc.setDrawColor(color[0], color[1], color[2]);
+    doc.setLineWidth(grosor);
+    doc.line(ML, y, W - MR, y);
+  };
+
+  let pagina = 0;
+
+  function encabezado() {
+    pagina++;
+    if (LOGO) doc.addImage(LOGO, 'PNG', ML, 34, 88, 42);
+    setT(6, GRIS);
+    doc.setCharSpace(2.4);
+    doc.text('SILVER', ML + 2, 88);
+    doc.setCharSpace(0);
+
+    /* bloque derecho: se ajusta el interletrado hasta que quepa en su columna */
+    const anchoDer = CW - 150;
+    const l1 = 'SOLICITUD DE CRÉDITO STERLING';
+    const l2 = 'FOLIO ' + folio + '  ·  ' + fdate(D.fecha);
+    setT(7, GRIS);
+    let esp = 1.5;
+    while (esp > 0.1 && Math.max(anchoReal(l1, esp), anchoReal(l2, esp)) > anchoDer) esp -= 0.1;
+    derecha(l1, 56, esp);
+    derecha(l2, 69, esp);
+
+    regla(96, 1.1, NEGRO);
+    return 116;
+  }
+
+  function pie() {
+    const y = H - 42;
+    regla(y - 11, 0.5, LINEA);
+    setT(6.2, GRIS);
+    doc.setCharSpace(1.1);
+    doc.text('STERLING DE COLOMBIA S.A.  ·  NIT 860.048.245-5  ·  SOLICITUD CRÉDITO  ·  '
+      + nombre + '  ·  C.C. ' + dash(D.cc), ML, y);
+    doc.setCharSpace(0);
+  }
+
+  function numerarPaginas() {
+    const total = doc.getNumberOfPages();
+    for (let i = 1; i <= total; i++) {
+      doc.setPage(i);
+      setT(6.2, GRIS);
+      derecha('PÁGINA ' + i + ' DE ' + total, H - 42, 1.1);
+    }
+  }
+
+  function titulo(txt, y) {
+    setT(8, NEGRO);
+    doc.setCharSpace(2.2);
+    doc.text(txt.toUpperCase(), ML, y);
+    doc.setCharSpace(0);
+    return y + 16;
+  }
+
+  const Y_FONDO = H - 62;   // límite antes del pie
+
+  /* si el siguiente bloque no cabe, se abre página nueva */
+  function espacio(alto, y) {
+    if (y + alto <= Y_FONDO) return y;
+    pie();
+    doc.addPage();
+    return encabezado();
+  }
+
+  function seccion(txt, y) {
+    y = espacio(50, y);
+    setT(7, NEGRO, 'bold');
+    doc.setCharSpace(1.8);
+    doc.text(txt.toUpperCase(), ML, y);
+    doc.setCharSpace(0);
+    regla(y + 5, 0.7, NEGRO);
+    return y + 19;
+  }
+
+  /* filas de celdas: cada celda [etiqueta, valor, columnas de 6] */
+  function filas(defs, y) {
+    const u = CW / 6;
+    let col = 0, x = ML;
+    defs.forEach(([lab, val, span]) => {
+      const s = span || 2;
+      if (col + s > 6) { col = 0; x = ML; y += 25; }
+      if (col === 0 && y + 20 > Y_FONDO) { pie(); doc.addPage(); y = encabezado(); }
+      const ancho = u * s - 12;
+      setT(5.9, GRIS);
+      doc.setCharSpace(0.9);
+      doc.text(String(lab).toUpperCase(), x, y);
+      doc.setCharSpace(0);
+      setT(8.6, NEGRO);
+      const texto = doc.splitTextToSize(String(val), ancho)[0] || '';
+      doc.text(texto, x, y + 11);
+      doc.setDrawColor(LINEA[0], LINEA[1], LINEA[2]);
+      doc.setLineWidth(0.4);
+      doc.line(x, y + 15, x + ancho, y + 15);
+      col += s; x += u * s;
+    });
+    return y + 28;
+  }
+
+  function casilla(marcada, texto, y, ancho) {
+    doc.setDrawColor(NEGRO[0], NEGRO[1], NEGRO[2]);
+    doc.setLineWidth(0.6);
+    doc.rect(ML, y - 6.5, 8, 8);
+    if (marcada) {
+      doc.setLineWidth(0.8);
+      doc.line(ML + 1.4, y - 5.1, ML + 6.6, y + 0.1);
+      doc.line(ML + 6.6, y - 5.1, ML + 1.4, y + 0.1);
+    }
+    setT(7.6, NEGRO);
+    const lineas = doc.splitTextToSize(texto, ancho - 22);
+    doc.text(lineas, ML + 16, y);
+    return y + lineas.length * 9.6 + 7;
+  }
+
+  /* ================= PÁGINA 1 ================= */
+  let y = encabezado();
+  y = titulo('Datos del solicitante', y);
+
+  y = seccion('Punto de venta', y);
+  y = filas([
+    ['Almacén', dash(D.tienda), 4],
+    ['Asesor', dash(D.asesor), 2],
+    ['Fecha de solicitud', fdate(D.fecha), 2]
+  ], y);
+
+  y = seccion('Datos personales', y);
+  y = filas([
+    ['Nombres', dash(D.nombres), 2], ['Apellidos', dash(D.apellidos), 2],
+    ['Número de identificación', dash(D.cc), 2],
+    ['Fecha de nacimiento', fdate(D.nacimiento), 2], ['Celular', dash(D.celular), 2],
+    ['Teléfono fijo', dash(D.telefono), 2],
+    ['Email', dash(D.email), 4], ['Ciudad', dash(D.ciudad), 2],
+    ['Dirección de residencia', dash(D.dirResidencia), 3],
+    ['Dirección de correspondencia', dash(D.dirCorrespondencia), 3],
+    ['Vivienda', dash(D.vivienda), 3], ['Tenencia', dash(D.tenencia), 3]
+  ], y);
+
+  y = seccion('Información laboral', y);
+  y = filas([
+    ['Empresa', dash(D.empresa), 2], ['Teléfono empresa / contador', dash(D.telEmpresa), 2],
+    ['Trabaja como independiente', dash(D.independiente), 2],
+    ['Dirección de la empresa', dash(D.dirEmpresa), 2], ['Cargo', dash(D.cargo), 2],
+    ['Profesión', dash(D.profesion), 2],
+    ['Antigüedad', dash(D.antiguedad), 2], ['Sueldo mensual', money(D.sueldo), 2],
+    ['Otros ingresos', money(D.otrosIngresos), 2],
+    ['Concepto de otros ingresos', dash(D.conceptoOtros), 6]
+  ], y);
+
+  y = seccion('Referencias personales', y);
+  y = filas([
+    ['Nombre 1', dash(D.ref1Nombre), 2], ['Teléfono', dash(D.ref1Tel), 2],
+    ['Parentesco', dash(D.ref1Parentesco), 2],
+    ['Nombre 2', dash(D.ref2Nombre), 2], ['Teléfono', dash(D.ref2Tel), 2],
+    ['Parentesco', dash(D.ref2Parentesco), 2]
+  ], y);
+
+  y = seccion('Referencia familiar', y);
+  y = filas([
+    ['Nombre completo', dash(D.famNombre), 2], ['Teléfono', dash(D.famTel), 2],
+    ['Parentesco', dash(D.famParentesco), 2]
+  ], y);
+
+  y = seccion('Referencias comerciales, bancarias y tarjetas', y);
+  y = filas([
+    ['Establecimiento', dash(D.com1Nombre), 3], ['Producto', dash(D.com1Producto), 3],
+    ['Banco', dash(D.banco), 3], ['Cuenta No.', dash(D.cuenta), 3],
+    ['Tarjeta de crédito — banco', dash(D.tcBanco), 6]
+  ], y);
+
+  y = seccion('Automóvil propio', y);
+  y = filas([
+    ['Marca', dash(D.autoMarca), 2], ['Modelo', dash(D.autoModelo), 2],
+    ['Año', dash(D.autoAnio), 1], ['Placa', dash(D.autoPlaca), 1]
+  ], y);
+  pie();
+
+  /* ================= PÁGINA 2 ================= */
+  doc.addPage();
+  y = encabezado();
+  y = titulo('Cónyuge, persona conjunta y autorizaciones', y);
+
+  y = seccion('Datos del cónyuge', y);
+  y = filas([
+    ['Nombres', dash(D.conNombre), 2], ['Apellidos', dash(D.conApellido), 2],
+    ['Número de identificación', dash(D.conCc), 2],
+    ['Empresa', dash(D.conEmpresa), 2], ['Teléfono', dash(D.conTel), 2],
+    ['Sueldo', money(D.conSueldo), 2],
+    ['Otros ingresos', money(D.conOtros), 6]
+  ], y);
+
+  y = seccion('Persona conjunta autorizada', y);
+  y = filas([
+    ['Nombres', dash(D.cjNombre), 2], ['Apellidos', dash(D.cjApellido), 2],
+    ['Número de identificación', dash(D.cjCc), 2],
+    ['Parentesco (cónyuge o hijos)', dash(D.cjParentesco), 3], ['Teléfono', dash(D.cjTel), 3]
+  ], y);
+
+  y = seccion('Declaración', y);
+  setT(7.8, NEGRO);
+  const decl = doc.splitTextToSize(LEGAL, CW - 34);
+  doc.setDrawColor(NEGRO[0], NEGRO[1], NEGRO[2]);
+  doc.setLineWidth(0.6);
+  doc.rect(ML, y - 10, CW, decl.length * 10.5 + 18);
+  doc.text(decl, ML + 12, y + 2, { lineHeightFactor: 1.35 });
+  y += decl.length * 10.5 + 26;
+
+  y = casilla(D.ackReglamento === 'Sí',
+    'Declaro haber leído y comprendido el reglamento del Crédito Sterling y acepto sus términos y condiciones.', y, CW);
+  y = casilla(D.ackCredito === 'Sí',
+    'Autorizo de manera previa, expresa e informada a Sterling de Colombia S.A., o a quien represente sus derechos, '
+    + 'a consultar, solicitar, suministrar, reportar, procesar y divulgar mi información financiera, comercial y crediticia '
+    + 'ante centrales de información y operadores de riesgo, así como a tratar mis datos personales conforme a la '
+    + 'Ley 1581 de 2012 y a la política de tratamiento de datos de la compañía.', y, CW);
+  y = casilla(D.ackComercial === 'Sí',
+    'Autorizo el envío de información comercial y promocional de las marcas del grupo. (Opcional)', y, CW);
+
+  y += 8;
+  regla(y, 0.5, LINEA);
+  setT(7.4, GRIS);
+  doc.text(doc.splitTextToSize(
+    'La firma de este documento se consigna en la última página y comprende la totalidad de la solicitud, '
+    + 'la declaración, las autorizaciones y el reglamento anexo.', CW - 10), ML, y + 13, { lineHeightFactor: 1.4 });
+  pie();
+
+  /* ================= PÁGINA 3 ================= */
+  doc.addPage();
+  y = encabezado();
+  y = titulo('Anexo · Reglamento y condiciones', y);
+
+  setT(7.4, NEGRO, 'bold');
+  doc.text(doc.splitTextToSize(REGLAMENTO_TITULO.toUpperCase(), CW - 10), W / 2, y, { align: 'center', lineHeightFactor: 1.3 });
+  y += 22;
+
+  const colW = (CW - 26) / 2;
+
+  /* Se reserva de abajo hacia arriba: trazabilidad, cuadro de la compañía y firma */
+  const declFirma = 'Con mi firma declaro que la información consignada en esta solicitud es veraz, que he recibido, leído y '
+    + 'comprendido el reglamento y condiciones del Crédito Sterling aquí anexo, y que acepto las declaraciones y '
+    + 'autorizaciones marcadas en este documento. Esta firma comprende la totalidad del presente documento.';
+  const textoTrace = 'Diligenciado en ' + dash(D.tienda) + (D.asesor ? '  ·  Asesor: ' + D.asesor : '')
+    + '  ·  Generado el ' + stamp + '  ·  Folio ' + folio
+    + '. Documento generado electrónicamente para firma. Las autorizaciones marcadas fueron confirmadas '
+    + 'por el solicitante antes de la generación de este documento.';
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.6);
+  const lineasTrace = doc.splitTextToSize(textoTrace, CW - 10);
+  doc.setFontSize(7.8);
+  const lineasFirma = doc.splitTextToSize(declFirma, CW - 10);
+
+  const altoTrace = 12 + lineasTrace.length * 9.6;
+  const altoCaja = 52;
+  const altoFirma = lineasFirma.length * 11 + 76;
+  const yTrace = Y_FONDO - altoTrace;
+  const yCaja = yTrace - altoCaja - 18;
+  const yFirma = yCaja - altoFirma - 14;
+  const yFondoCol = yFirma - 16;
+
+  /* el reglamento se ajusta al espacio que quede */
+  const bloques = []
+    .concat(REGLAMENTO.map(t => ({ t, tipo: 'p' })))
+    .concat(REGLAMENTO_FINALIDADES.map(t => ({ t, tipo: 'li' })))
+    .concat(REGLAMENTO_CIERRE.map(t => ({ t, tipo: 'p' })));
+
+  const yTope = y;
+  let cuerpo = 6.2, lh, plan = null;
+  for (; cuerpo >= 4.4; cuerpo -= 0.15) {
+    lh = cuerpo * 1.42;
+    doc.setFontSize(cuerpo);
+    doc.setFont('helvetica', 'normal');
+    const items = bloques.map(b => ({
+      tipo: b.tipo,
+      lineas: doc.splitTextToSize(b.t, (b.tipo === 'li' ? colW - 10 : colW) - 12)
+    }));
+    const alto = items.reduce((a, i) => a + i.lineas.length * lh + 5, 0);
+    if (alto <= (yFondoCol - yTope) * 2 - 12) { plan = items; break; }
+  }
+  if (!plan) {
+    cuerpo = 4.4; lh = cuerpo * 1.42;
+    doc.setFontSize(cuerpo);
+    plan = bloques.map(b => ({ tipo: b.tipo, lineas: doc.splitTextToSize(b.t, colW - 12) }));
+  }
+
+  setT(cuerpo, NEGRO);
+  doc.setCharSpace(0);
+  let cx = ML, cy = yTope;
+  plan.forEach(item => {
+    item.lineas.forEach((linea, k) => {
+      if (cy > yFondoCol) { cx = ML + colW + 26; cy = yTope; }
+      const sangria = item.tipo === 'li' ? 10 : 0;
+      if (item.tipo === 'li' && k === 0) doc.text('·', cx, cy);
+      doc.text(linea, cx + sangria, cy);
+      cy += lh;
+    });
+    cy += 5;
+  });
+
+  /* ---- firma única ---- */
+  regla(yFirma - 14, 0.7, NEGRO);
+  setT(7.8, NEGRO);
+  doc.text(lineasFirma, ML, yFirma, { lineHeightFactor: 1.4 });
+
+  const tieneConjunta = !!(D.cjNombre || D.cjApellido || D.cjCc);
+  const anchoFirma = tieneConjunta ? (CW - 40) / 2 : CW * 0.52;
+  const yLinea = yFirma + lineasFirma.length * 11 + 34;
+  doc.setDrawColor(NEGRO[0], NEGRO[1], NEGRO[2]);
+  doc.setLineWidth(0.7);
+  doc.line(ML, yLinea, ML + anchoFirma, yLinea);
+  setT(6.2, GRIS);
+  doc.setCharSpace(1.1);
+  doc.text('FIRMA DEL SOLICITANTE', ML, yLinea + 11);
+  doc.setCharSpace(0);
+  setT(8.4, NEGRO);
+  doc.text(nombre, ML, yLinea + 24);
+  doc.text('C.C. ' + dash(D.cc), ML, yLinea + 35);
+
+  if (tieneConjunta) {
+    const x2 = ML + anchoFirma + 40;
+    doc.setLineWidth(0.7);
+    doc.line(x2, yLinea, x2 + anchoFirma, yLinea);
+    setT(6.2, GRIS);
+    doc.setCharSpace(1.1);
+    doc.text('FIRMA PERSONA CONJUNTA', x2, yLinea + 11);
+    doc.setCharSpace(0);
+    setT(8.4, NEGRO);
+    doc.text(((D.cjNombre || '') + ' ' + (D.cjApellido || '')).trim().toUpperCase() || '—', x2, yLinea + 24);
+    doc.text('C.C. ' + dash(D.cjCc), x2, yLinea + 35);
+  }
+
+  /* ---- uso de la compañía ---- */
+  doc.setFillColor(242, 241, 239);
+  doc.rect(ML, yCaja, CW, 15, 'F');
+  doc.setDrawColor(NEGRO[0], NEGRO[1], NEGRO[2]);
+  doc.setLineWidth(0.6);
+  doc.rect(ML, yCaja, CW, altoCaja);
+  doc.line(ML, yCaja + 15, W - MR, yCaja + 15);
+  setT(6.2, NEGRO);
+  doc.setCharSpace(1.6);
+  doc.text('USO DE LA COMPAÑÍA', ML + 9, yCaja + 10);
+  setT(5.8, GRIS);
+  ['CUPO APROBADO', 'VENDEDOR', 'APROBÓ', 'CONFIRMÓ'].forEach((c, i) => {
+    const x = ML + (CW / 4) * i;
+    if (i) {
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(0.4);
+      doc.line(x, yCaja + 15, x, yCaja + altoCaja);
+    }
+    doc.text(c, x + 9, yCaja + 27);
+  });
+  doc.setCharSpace(0);
+
+  /* ---- trazabilidad ---- */
+  regla(yTrace - 10, 0.5, LINEA);
+  setT(6.6, GRIS);
+  doc.text('Registro de diligenciamiento', ML, yTrace);
+  doc.text(lineasTrace, ML, yTrace + 10, { lineHeightFactor: 1.45 });
+  pie();
+
+  numerarPaginas();
+  return doc;
 }
 
-function buildDoc() {
-  const nombre = (val('nombres') + ' ' + val('apellidos')).toUpperCase();
-  const stamp = new Date().toLocaleString('es-CO', { dateStyle: 'long', timeStyle: 'short' });
-  const folio = 'ST-' + iso.replace(/-/g, '') + '-' + digits(val('cc')).slice(-5);
-
-  const head = '<div class="pg-head"><div><div class="lm">Sterling</div><div class="lt">SILVER</div></div>'
-    + '<div class="rt">Solicitud de Crédito Sterling<br>Folio ' + esc(folio) + ' · ' + esc(fdate(val('fecha'))) + '</div></div>';
-
-  const foot = p => '<div class="pg-foot"><span>Sterling de Colombia S.A. · NIT 000.000.000-0</span>'
-    + '<span>' + esc(nombre) + ' · C.C. ' + esc(dash(val('cc'))) + '</span><span>Página ' + p + ' de 3</span></div>';
-
-  const p1 = '<div class="page">' + head
-    + '<p class="pg-title">Datos del solicitante</p>'
-
-    + '<div class="blk"><h3>Punto de venta</h3><div class="rows">'
-    + cell('Almacén', dash(val('tienda')), 'w66') + cell('Asesor', dash(val('asesor')))
-    + cell('Fecha de solicitud', fdate(val('fecha')), 'w100')
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Datos personales</h3><div class="rows">'
-    + cell('Nombres', dash(val('nombres')), 'w33') + cell('Apellidos', dash(val('apellidos')), 'w33') + cell('Número de identificación', dash(val('cc')), 'w33')
-    + cell('Fecha de nacimiento', fdate(val('nacimiento'))) + cell('Celular', dash(val('celular'))) + cell('Teléfono fijo', dash(val('telefono')))
-    + cell('Email', dash(val('email')), 'w66') + cell('Ciudad', dash(val('ciudad')))
-    + cell('Dirección de residencia', dash(val('dirResidencia')), 'w50') + cell('Dirección de correspondencia', dash(val('dirCorrespondencia')), 'w50')
-    + cell('Vivienda', dash(val('vivienda')), 'w50') + cell('Tenencia', dash(val('tenencia')), 'w50')
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Información laboral</h3><div class="rows">'
-    + cell('Empresa', dash(val('empresa')), 'w50') + cell('Teléfono empresa / contador', dash(val('telEmpresa'))) + cell('Antigüedad', dash(val('antiguedad')))
-    + cell('Trabaja como independiente', dash(val('independiente')), 'w33')
-    + cell('Dirección de la empresa', dash(val('dirEmpresa')), 'w50') + cell('Cargo', dash(val('cargo'))) + cell('Profesión', dash(val('profesion')))
-    + cell('Sueldo mensual', money(val('sueldo')), 'w33') + cell('Otros ingresos', money(val('otrosIngresos')), 'w33')
-    + cell('Concepto otros ingresos', dash(val('conceptoOtros')), 'w33')
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Referencias personales</h3><div class="rows">'
-    + cell('Nombre 1', dash(val('ref1Nombre'))) + cell('Teléfono', dash(val('ref1Tel'))) + cell('Parentesco', dash(val('ref1Parentesco')))
-    + cell('Nombre 2', dash(val('ref2Nombre'))) + cell('Teléfono', dash(val('ref2Tel'))) + cell('Parentesco', dash(val('ref2Parentesco')))
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Referencia familiar</h3><div class="rows">'
-    + cell('Nombre completo', dash(val('famNombre'))) + cell('Teléfono', dash(val('famTel'))) + cell('Parentesco', dash(val('famParentesco')))
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Referencias comerciales, bancarias y tarjetas</h3><div class="rows">'
-    + cell('Establecimiento', dash(val('com1Nombre')), 'w50') + cell('Producto', dash(val('com1Producto')), 'w50')
-    + cell('Banco', dash(val('banco')), 'w50') + cell('Cuenta No.', dash(val('cuenta')), 'w50')
-    + cell('Tarjeta de crédito — banco', dash(val('tcBanco')), 'w100')
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Automóvil propio</h3><div class="rows">'
-    + cell('Marca', dash(val('autoMarca')), 'w25') + cell('Modelo', dash(val('autoModelo')), 'w25')
-    + cell('Año', dash(val('autoAnio')), 'w25') + cell('Placa', dash(val('autoPlaca')), 'w25')
-    + '</div></div>'
-    + foot(1) + '</div>';
-
-  const p2 = '<div class="page">' + head
-    + '<p class="pg-title">Cónyuge, persona conjunta y autorizaciones</p>'
-
-    + '<div class="blk"><h3>Datos del cónyuge</h3><div class="rows">'
-    + cell('Nombres', dash(val('conNombre'))) + cell('Apellidos', dash(val('conApellido'))) + cell('Número de identificación', dash(val('conCc')))
-    + cell('Empresa', dash(val('conEmpresa'))) + cell('Teléfono', dash(val('conTel'))) + cell('Sueldo', money(val('conSueldo')))
-    + cell('Otros ingresos', money(val('conOtros')))
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Persona conjunta autorizada</h3><div class="rows">'
-    + cell('Nombres', dash(val('cjNombre'))) + cell('Apellidos', dash(val('cjApellido'))) + cell('Número de identificación', dash(val('cjCc')))
-    + cell('Parentesco (cónyuge o hijos)', dash(val('cjParentesco'))) + cell('Teléfono', dash(val('cjTel')))
-    + '</div></div>'
-
-    + '<div class="blk"><h3>Declaración</h3><div class="legalbox">' + esc(LEGAL) + '</div>'
-    + ck(document.getElementById('ackReglamento').checked, 'Declaro haber leído y comprendido el reglamento del Crédito Sterling y acepto sus términos y condiciones.')
-    + ck(document.getElementById('ackCredito').checked, 'Autorizo de manera previa, expresa e informada a Sterling de Colombia S.A., o a quien represente sus derechos, a consultar, solicitar, suministrar, reportar, procesar y divulgar mi información financiera, comercial y crediticia ante centrales de información y operadores de riesgo, así como a tratar mis datos personales conforme a la Ley 1581 de 2012 y a la política de tratamiento de datos de la compañía.')
-    + ck(document.getElementById('ackComercial').checked, 'Autorizo el envío de información comercial y promocional de las marcas del grupo. (Opcional)')
-    + '</div>'
-
-    + '<p class="signote">La firma de este documento se consigna en la última página y comprende '
-    + 'la totalidad de la solicitud, la declaración, las autorizaciones y el reglamento anexo.</p>'
-    + foot(2) + '</div>';
-
-  const tieneConjunta = !!(val('cjNombre') || val('cjApellido') || val('cjCc'));
-
-  /* Anexo: reglamento completo, dos columnas */
-  const corte = 12;
-  const col = arr => arr.map(t => '<p>' + esc(t) + '</p>').join('');
-  const colA = col(REGLAMENTO.slice(0, corte));
-  const colB = col(REGLAMENTO.slice(corte))
-    + '<ul>' + REGLAMENTO_FINALIDADES.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>'
-    + col(REGLAMENTO_CIERRE);
-
-  const p3 = '<div class="page">' + head
-    + '<p class="pg-title">Anexo · Reglamento y condiciones</p>'
-    + '<p class="regtitle">' + esc(REGLAMENTO_TITULO) + '</p>'
-    + '<div class="regcols"><div class="regcol">' + colA + '</div><div class="regcol">' + colB + '</div></div>'
-    + '<div class="regsign">'
-    + '<p class="finaldec">Con mi firma declaro que la información consignada en esta solicitud es veraz, '
-    + 'que he recibido, leído y comprendido el reglamento y condiciones del Crédito Sterling aquí anexo, '
-    + 'y que acepto las declaraciones y autorizaciones marcadas en este documento. '
-    + 'Esta firma comprende la totalidad del presente documento.</p>'
-    + '<div class="sigs"><div class="sigline"><div class="ln"></div><div class="cap">Firma del solicitante</div>'
-    + '<div class="sub">' + esc(nombre || '—') + '<br>C.C. ' + esc(dash(val('cc'))) + '</div></div>'
-    + (tieneConjunta
-        ? '<div class="sigline"><div class="ln"></div><div class="cap">Firma persona conjunta</div>'
-          + '<div class="sub">' + esc((val('cjNombre') + ' ' + val('cjApellido')).trim().toUpperCase()) + '<br>C.C. ' + esc(dash(val('cjCc'))) + '</div></div>'
-        : '')
-    + '</div></div>'
-
-    + '<div class="company"><div class="ch">Uso de la compañía</div><div class="cb">'
-    + '<div>Cupo aprobado<i></i></div><div>Vendedor<i></i></div><div>Aprobó<i></i></div><div>Confirmó<i></i></div>'
-    + '</div></div>'
-
-    + '<div class="trace"><strong>Registro de diligenciamiento</strong><br>'
-    + 'Diligenciado en ' + esc(dash(val('tienda'))) + (val('asesor') ? ' · Asesor: ' + esc(val('asesor')) : '')
-    + ' · Generado el ' + esc(stamp) + ' · Folio ' + esc(folio)
-    + '<br>Documento generado electrónicamente para firma digital. Las autorizaciones marcadas fueron confirmadas por el solicitante antes de la generación de este documento.</div>'
-    + foot(3) + '</div>';
-
-  return p1 + p2 + p3;
-}
-
-function ck(on, text) {
-  return '<div class="ck"><span class="box">' + (on ? '✕' : '') + '</span><span>' + esc(text) + '</span></div>';
-}
-
-/* ------------------------------------------------------------------
-   Generación del archivo
------------------------------------------------------------------- */
-const folioActual = () => 'ST-' + iso.replace(/-/g, '') + '-' + (digits(val('cc')).slice(-5) || '00000');
+const folioActual = () => 'ST-' + iso.replace(/-/g, '') + '-' + (digits(val('cc')).slice(-4) || '0000');
 const fileName = () => 'Solicitud_Credito_Sterling_'
   + (val('apellidos') || 'Cliente').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z]/g, '')
   + '_' + (digits(val('cc')) || 'SC') + '.pdf';
 
+function logoPDF() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--logo-negro');
+  const m = v.match(/base64,([^'")]+)/);
+  return m ? 'data:image/png;base64,' + m[1] : null;
+}
+
 async function buildPdf() {
-  if (typeof html2canvas === 'undefined' || !window.jspdf) {
-    throw new Error('libs');
-  }
-  const root = document.getElementById('pdfRoot');
-  root.innerHTML = buildDoc();
-  try {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
-    const W = pdf.internal.pageSize.getWidth();
-    const H = pdf.internal.pageSize.getHeight();
-    const pages = root.querySelectorAll('.page');
-    for (let i = 0; i < pages.length; i++) {
-      const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: '#ffffff', logging: false });
-      const img = canvas.toDataURL('image/jpeg', 0.9);
-      const h = Math.min(H, (canvas.height / canvas.width) * W);
-      if (i > 0) pdf.addPage();
-      pdf.addImage(img, 'JPEG', 0, 0, W, h);
-    }
-    return pdf;
-  } finally {
-    root.innerHTML = '';
-  }
+  if (!window.jspdf) throw new Error('No se pudo cargar el generador de PDF');
+  return construirPDF(window.jspdf.jsPDF, collect(), {
+    LOGO: logoPDF(),
+    REGLAMENTO_TITULO, REGLAMENTO, REGLAMENTO_FINALIDADES, REGLAMENTO_CIERRE, LEGAL,
+    folio: folioActual(),
+    stamp: new Date().toLocaleString('es-CO', { dateStyle: 'long', timeStyle: 'short' })
+  });
 }
 
 /* Todos los campos como objeto plano, para la hoja de cálculo y el correo */
