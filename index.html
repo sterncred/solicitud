@@ -241,6 +241,15 @@ main{max-width:1100px;margin:0 auto;padding:32px 28px 90px}
 .field.locked{background:#faf9f7}
 .field.locked input{color:var(--ink-soft)}
 
+.fnac{display:flex;gap:8px;align-items:baseline}
+.fnac select{
+  flex:1;min-width:0;border:none;background:transparent;padding:2px 0 3px;
+  font-family:var(--sans);font-size:15px;font-weight:400;color:var(--ink);
+  border-bottom:1px solid transparent;
+}
+.fnac select:invalid,.fnac select:has(option[value='']:checked){color:#c3c5c8}
+.fnac select:focus{outline:none;border-bottom-color:var(--ink)}
+.field.invalid .fnac select{border-bottom-color:var(--sterling-red)}
 .field .fhint{display:block;font-size:11px;color:var(--label);margin-top:4px;line-height:1.45}
 
 /* banner de origen (tienda y asesor desde el enlace) */
@@ -627,7 +636,7 @@ const SECTIONS = [
     { n:'nombres', l:'Nombres', w:4, req:true },
     { n:'apellidos', l:'Apellidos', w:4, req:true },
     { n:'cc', l:'Número de identificación', w:4, req:true, num:true },
-    { n:'nacimiento', l:'Fecha de nacimiento', t:'date', w:4, req:true },
+    { n:'nacimiento', l:'Fecha de nacimiento', t:'fnac', w:4, req:true },
     { n:'celular', l:'Celular', t:'tel', w:4, req:true, num:true, len:10 },
     { n:'telefono', l:'Teléfono fijo', t:'tel', w:4, num:true, len:10 },
     { n:'email', l:'Email', t:'email', w:4, req:true },
@@ -752,6 +761,20 @@ SECTIONS.forEach(sec => {
         html += '<label><input type="radio" name="' + f.n + '" value="' + esc(o) + '" id="' + id + '_' + i + '"><span>' + esc(o) + '</span></label>';
       });
       html += '</div>';
+    } else if (f.t === 'fnac') {
+      const hoy = new Date();
+      const maxA = hoy.getFullYear() - 18;
+      const minA = hoy.getFullYear() - 100;
+      const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                     'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      html += '<label for="' + id + '_d">' + esc(f.l) + '</label><div class="fnac">';
+      html += '<select id="' + id + '_d" data-fnac="d"><option value="">Día</option>';
+      for (let i = 1; i <= 31; i++) html += '<option value="' + i + '">' + i + '</option>';
+      html += '</select><select id="' + id + '_m" data-fnac="m"><option value="">Mes</option>';
+      MESES.forEach((m, i) => { html += '<option value="' + (i + 1) + '">' + m + '</option>'; });
+      html += '</select><select id="' + id + '_y" data-fnac="y"><option value="">Año</option>';
+      for (let a2 = maxA; a2 >= minA; a2--) html += '<option value="' + a2 + '">' + a2 + '</option>';
+      html += '</select></div><input type="hidden" name="' + f.n + '" id="' + id + '">';
     } else if (f.t === 'tiendas') {
       html += '<label for="' + id + '">' + esc(f.l) + '</label><select id="' + id + '" name="' + f.n + '">'
            + '<option value="">Seleccione el almacén…</option>';
@@ -782,6 +805,38 @@ SECTIONS.forEach(sec => {
   wrap.innerHTML = html;
   form.appendChild(wrap);
 });
+
+/* Fecha de nacimiento con tres listas */
+(function fechaNacimiento() {
+  const caja = form.querySelector('.fnac');
+  if (!caja) return;
+  const d = caja.querySelector('[data-fnac=d]');
+  const m = caja.querySelector('[data-fnac=m]');
+  const y = caja.querySelector('[data-fnac=y]');
+  const oculto = form.querySelector('[name=nacimiento]');
+
+  const diasDelMes = (mes, anio) =>
+    (!mes ? 31 : new Date(anio || 2024, mes, 0).getDate());
+
+  const ajustarDias = () => {
+    const tope = diasDelMes(+m.value, +y.value);
+    const elegido = +d.value;
+    [...d.options].forEach(o => { if (o.value) o.hidden = +o.value > tope; });
+    if (elegido > tope) d.value = '';
+  };
+
+  const componer = () => {
+    ajustarDias();
+    oculto.value = (d.value && m.value && y.value)
+      ? y.value + '-' + String(m.value).padStart(2, '0') + '-' + String(d.value).padStart(2, '0')
+      : '';
+    const campo = caja.closest('.field');
+    if (oculto.value) campo.classList.remove('invalid');
+    updateProgress();
+  };
+
+  [d, m, y].forEach(sel => sel.addEventListener('change', componer));
+})();
 
 /* Persona conjunta: marcar la sección como "todo o nada" en cuanto se escriba algo */
 (function conjuntaTodoONada() {
@@ -1284,6 +1339,8 @@ document.getElementById('btnClear').addEventListener('click', () => {
   if (!confirm('¿Borrar todo lo que ha escrito?')) return;
   form.reset();
   document.querySelectorAll('[type=checkbox]').forEach(c => c.checked = false);
+  document.querySelectorAll('.fnac select').forEach(sel => sel.value = '');
+  const fn = form.querySelector('[name=nacimiento]'); if (fn) fn.value = '';
   document.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
   document.querySelectorAll('.check.missing').forEach(f => f.classList.remove('missing'));
   if (fFecha) fFecha.value = iso;
